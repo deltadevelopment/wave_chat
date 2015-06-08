@@ -3,31 +3,24 @@
   "version": "0.1.0",
   "description": "Chat for Wave",
   "author": "Delta Dev AS",
-  "bin": {
-    "module-name": "./bin/wave_chat"
-  },
 
   "scripts": {
     "test": "",
     "start": "node index.js"
   },
 
-  "main": "lib/foo.js",
+  "main": "index.js",
   "repository": {
   "type": "git",
   "url": "https://github.com/nodejitsu/browsenpm.org"
-},
-  "dependencies": {
-    "devDependencies": {
-      "mocha": "*"
-    },
-    "preferGlobal": true,
-    "private": true,
-    "publishConfig": {
-      "registry": "https://your-private-hosted-npm.registry.nodejitsu.com"
-    },
-    
-    
-    "license": ""
-  }
+  },
+
+  "devDependencies": {
+    "mocha": "*",
+    "typescript": "*",
+    "grunt": "~0.4.5"
+  },
+  "preferGlobal": true,
+  "private": true,
+  "license": ""
 }
