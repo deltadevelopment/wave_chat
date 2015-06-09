@@ -2,10 +2,13 @@ var secret = require('./.secret');
 
 var config = {
   socket: 42326,
-  db_host: "wave-chat.cotsyfcel8ra.eu-west-1.rds.amazonaws.com",
-  db_name: secret.db_name,
+  dbHost: "wave-chat.cotsyfcel8ra.eu-west-1.rds.amazonaws.com",
+  dbName: secret.db_name,
   username: secret.username,
-  password: secret.password
+  password: secret.password,
+
+  // Wave Backend
+  apiHost: "http://localhost:3000"
 };
 
 module.exports = config;
