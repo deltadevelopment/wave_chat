@@ -1,7 +1,7 @@
 var secret = require('./.secret');
 
 var config = {
-  socket: 42326,
+  port: 42326,
   dbHost: "wave-chat.cotsyfcel8ra.eu-west-1.rds.amazonaws.com",
   dbName: secret.db_name,
   username: secret.username,
