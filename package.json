@@ -26,5 +26,8 @@
   },
   "preferGlobal": true,
   "private": true,
-  "license": ""
+  "license": "",
+  "dependencies": {
+    "require-dir": "^0.3.0"
+  }
 }
