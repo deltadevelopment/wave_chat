@@ -1,5 +1,3 @@
-var should = require('should');
-
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-mocha-test');
@@ -38,5 +36,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', 'mochaTest');
+
+  grunt.loadNpmTasks('grunt-mocha-debug');
 
 };

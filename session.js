@@ -1,4 +1,4 @@
-//var api = require('./api.js');
+var api = require('./api.js');
 
 var session = { };
 var sessionList = new Array();
@@ -11,8 +11,11 @@ session.isAuth = function(client) {
     return false;
 }
 
-session.doAuth = function(client, callback) {
-
+session.doAuth = function(client, authToken, callback) {
+  api.getUserByAuthToken(authToken, function(res){
+//    if res.hasOwnProperty("username");
+//      sessionList.push(client);
+  });
 }
 
 session.removeSession = function(client) {
