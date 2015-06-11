@@ -1,16 +1,16 @@
 var config = require('./config');
-var promise = require('bluebird');
+var Promise = require('bluebird');
 var bhttp = require('bhttp');
 
 var api = {}
 
-api.getUserByAuthToken = function(authToken, callback){
+api.getUserByAuthToken = function(authToken){
   var url= config.apiHost + "/user/by_auth_token/" + authToken;
 
-  promise.try(function(){
+  return Promise.try(function(){
     return bhttp.get(url);
   }).then(function(res){
-    callback(res.body.data.user);
+    return res.body.data.user;
   });
 
 }
