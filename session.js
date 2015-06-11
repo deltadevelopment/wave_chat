@@ -1,12 +1,14 @@
 //var api = require('./api.js');
 
 var session = { };
-var sessionList = { };
+var sessionList = new Array();
 
 session.isAuth = function(client) {
-  if (sessionList.client === undefined)
+  for (sess in sessionList) {
+    if (sess === client)
+      return true;
+    }
     return false;
-  return true;
 }
 
 session.doAuth = function(client, callback) {
