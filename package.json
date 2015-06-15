@@ -31,6 +31,7 @@
   "private": true,
   "license": "",
   "dependencies": {
+    "redlock": "^0.2.0",
     "require-dir": "^0.3.0"
   }
 }
