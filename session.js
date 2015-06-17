@@ -45,6 +45,17 @@ sess.addSession = function(userId, client) {
   sess.list[userId] = sessionInfo;
 }
 
+sess.doAuth = function(client, authToken, callback) {
+  api.getUserByAuthToken(authToken, function(res){
+    if(res.hasOwnProperty("username")){
+      sessionList.push(client);
+      callback(true);
+    } else{
+      callback(false);
+    }
+  });
+}
+
 /**
   * Remove a session from the local session table,
   * and from Redis. This makes sure other servers knows

@@ -7,11 +7,10 @@ chai.should();
 
 describe("#getUserByAuthToken", function(){
   it("returns a username for a token", function(done){
-    var token = "599269a04836fca23195b1c8f8ac943a"
+    var token = "5515010e19c447e9eb44dcbc2ce41624"
 
     api.getUserByAuthToken(token, function(res){
       res.hasOwnProperty("username").should.equal(true);                    
-      console.log(res);
       done();
     });
 
@@ -21,16 +20,9 @@ describe("#getUserByAuthToken", function(){
     var token = "A";
 
     api.getUserByAuthToken(token, function(res){
-      res.hasOwnProperty('username').should.equal(true);
+      res.hasOwnProperty('username').should.equal(false);
+      done();
     });
-  });
-
-  it("test", function(){
-
-    array = [1,2,3];
-
-    array = _.without(array, 1);
-
   });
 
 });
