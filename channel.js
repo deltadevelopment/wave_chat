@@ -49,7 +49,7 @@ channel.prototype.addUser = function(userId, callback) {
   this.hasUser(userId, function(undefined, undefined, hasUser) {
     if (hasUser) {
       if (typeof callback !== 'undefined')
-        callback(chan, userId, false);
+        callback(that, userId, false);
       return;
     }
 
@@ -175,10 +175,11 @@ channel.prototype.sendMessage = function(senderId, msg, callback) {
         return;
       }
 
+
       var userList = data[0][1];
       for (i in userList) {
-        //if (i == senderId)
-        //  continue;
+        if (userList[i] == senderId)
+          continue;
         sess.writeMessage(userList[i], messageObj);
       }
     });

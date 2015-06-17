@@ -22,7 +22,6 @@ cmd.handle = function(client, params) {
       return;
     }
 
-
     currentChannel.sendMessage(userId, params.message);
   });
 }

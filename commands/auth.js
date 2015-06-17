@@ -3,7 +3,7 @@ var command = require('../command.js');
 
 var cmd = { };
 
-cmd.command = 'authClient';
+cmd.command = 'auth';
 cmd.preAuth = true;
 
 cmd.handle = function(client, params) {

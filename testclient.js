@@ -10,7 +10,9 @@ var client = net.connect(config.port, function () {
 });
 
 client.on('data', function(data) {
-
+  console.log('\n<--DATA-->');
+  console.log(data.toString());
+  console.log('\n</--DATA-->');
 });
 
 client.on('end', function() {
@@ -44,21 +46,57 @@ process.stdin.on('data', function(textLine) {
     case 'quit':
       process.exit();
       break;
-  case 'join':
-    console.log(params);
+    case 'auth':
+      doAuth(params);
+      break;
+    case 'join':
       doJoin(params);
-    break;
+      break;
+    case 'part':
+      doPart(params);
+      break;
+      case 'send':
+        doSend(params);
+        break;
     default:
       console.log('Unknown command: %s', textLine);
       break;
   }
 });
 
+function doAuth(params) {
+  client.write(JSON.stringify({
+    command: 'auth',
+    params: {
+      authToken: params.join(' ')
+    }
+  }));
+}
+
 function doJoin(params) {
-  client.write({
+  client.write(JSON.stringify({
     command: 'join',
     params: {
-      channel: params[0]
+      channel: params
     }
-  });
+  }));
+}
+
+function doPart(params) {
+  client.write(JSON.stringify({
+    command: 'part',
+    params: {
+      channel: params
+    }
+  }));
+}
+
+function doSend(params) {
+  client.write(JSON.stringify({
+    command: 'send',
+    params: {
+      channel: params[0],
+      message: params.splice(1).join(' ')
+    }
+  }));
 }
