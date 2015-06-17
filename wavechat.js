@@ -1,12 +1,21 @@
 var net = require('net');
+
+//var net = require('tls');
+var fs = require('fs');
+
 var config = require('./config.js');
 var command = require('./command.js');
 var session = require('./session.js');
 
-var listener = net.createServer(function(client){
+
+var options = {
+  key: fs.readFileSync('./ssl/key.key'),
+  cert: fs.readFileSync('./ssl/cert.crt')
+}
+
+var listener = net.createServer(options, function(client){
   // Connected
   {
-
   }
 
   // Data
@@ -16,12 +25,12 @@ var listener = net.createServer(function(client){
 
   // Disconnected
   client.on('end', function(){
-    session.removeSession(client);
+    session.remSession(client);
   });
 
   // Error
   client.on('error', function(){
-    session.removeSession(client);
+    session.remSession(client);
   });
 });
 

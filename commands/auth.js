@@ -1,4 +1,5 @@
-var session = require('../  session.js');
+var session = require('../session.js');
+var command = require('../command.js');
 
 var cmd = { };
 
@@ -6,27 +7,26 @@ cmd.command = 'authClient';
 cmd.preAuth = true;
 
 cmd.handle = function(client, params) {
-  if (session.isAuth(client))
-  {
-    console.warn('The client on %s tried to double auth. Disconnecting it.', client.remoteAddress);
+
+  if (session.hasLocalSession(client)) {
+    console.warn('%s tried to double auth. Disconnecting it.', client.remoteAddress);
     client.end();
-    return;
   }
 
-  // Create an array to store new messages from the client in as we wait
-  // for the auth result
-  client.waitAuthCmd = new Array();
-  session.doAuth(client, function(success) {
-    if (success != true) {
-      console.log('Invalid token provided by %s. Disconnecting.', client.remoteAddress);
-      client.end(JSON.stringify({ error: 'Invalid token' }));
+  if (session.isAuth(client, params.authtoken, function(userId, authOk) {
+    if (authOk == false) {
+      console.log(u.format('%s provided wrong auth. details. Closing.', client.remoteAddress));
+      client.write(JSON.stringify({ error: 'Auth not OK' }));
+      client.end();
       return;
     }
-    // We have the auth result. Good.
+
+    session.addSession(userId, client);
+
     for (dataMessage in client.waitAuthCmd)
       command.handle(client, dataMessage);
     delete command.waitAuthCmd;
-  });
+  }));
 }
 
 module.exports = cmd;

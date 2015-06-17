@@ -6,16 +6,41 @@ var cmdList = requireDir('./commands');
 
 var command = { };
 
-var testData = {
+var testData = [
+  {
     command: 'authClient',
     params: {
-      param1: 'one',
-      param2: 'two'
+      authToken: 'testToken',
     }
-  };
+  },
+  {
+    command: 'join',
+    params: {
+      channel: 'testChan',
+    }
+  },
+  {
+    command: 'send',
+    params: {
+      channel: 'testChan',
+      message: 'testMessage',
+    }
+  },
+  {
+    command: 'part',
+    params: {
+      authToken: 'testToken',
+    }
+  }
+];
 
+
+var fakeCommandCounter = 0;
 command.handle = function(client, data) {
-//  data = testData;
+  if (fakeCommandCounter < testData.length) {
+    data = testData[fakeCommandCounter++];
+    client.write(JSON.stringify(data));
+  }
 
   // If we're waiting for the result of auth,
   // save the command for later
@@ -39,7 +64,7 @@ command.handle = function(client, data) {
     if (cmdList[c].command != data.command)
       continue;
 
-    if (cmdList[c].preAuth != true && session.isAuth(client) == false) {
+    if (cmdList[c].preAuth != true && session.hasLocalSession(client) == null) {
       console.warn('%s tried to execute a command without authenticating.', client.remoteAddress);
       client.end(JSON.stringify({error: 'You must auth before running this command' }));
       return;
@@ -54,8 +79,6 @@ command.handle = function(client, data) {
     client.end(JSON.stringify({ error: 'No such command' }));
     return;
   }
-
 }
-
 
 module.exports = command;
