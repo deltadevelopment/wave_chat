@@ -37,10 +37,12 @@ var testData = [
 
 var fakeCommandCounter = 0;
 command.handle = function(client, data) {
-  if (fakeCommandCounter < testData.length) {
+  /*if (fakeCommandCounter < testData.length) {
     data = testData[fakeCommandCounter++];
     client.write(JSON.stringify(data));
-  }
+  }*/
+
+  data = JSON.parse(data.toString());
 
   // If we're waiting for the result of auth,
   // save the command for later

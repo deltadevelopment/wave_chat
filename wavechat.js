@@ -19,8 +19,8 @@ function quitUser(client) {
   if (client.channels || null == null) {
     for (i in client.channels) {
       var currentChannel = new chan(client.channels[i]);
+      console.log('Quit-parting user %s from channel %s', client.userId, currentChannel.id);
       currentChannel.remUser(client.userId);
-      console.log('Quit-parting user from channel: %s', currentChannel.id);
     }
   }
 
@@ -29,7 +29,9 @@ function quitUser(client) {
 }
 
 process.on('SIGINT', function() {
-  for (i in session.list) {
+  // We don't want to modify the array we're iterating
+  var sessionListCopy = session.list.slice();
+  for (i in sessionListCopy) {
     quitUser(session.list[i].client);
   }
   process.exit();

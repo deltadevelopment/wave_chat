@@ -8,7 +8,7 @@ var usr = require('./user.js');
 var config = require('./config.js');
 
 var sess = { };
-sess.list = { };
+sess.list = new Array();
 
 /**
   * Check if a sessionKey is valid for a user.
@@ -17,7 +17,7 @@ sess.list = { };
   * @param The callback: function(userId, success)
   */
 sess.isAuth = function (userId, sessionKey, callback) {
-  callback('testUser', true);
+  callback(uuid.v4(), true);
 }
 
 /**
@@ -43,6 +43,7 @@ sess.addSession = function(userId, client) {
   delete sessionInfo.server;
   sessionInfo.client = client;
   sess.list[userId] = sessionInfo;
+  console.log('Adding user to session list: %s', userId);
 }
 
 sess.doAuth = function(client, authToken, callback) {
@@ -66,17 +67,13 @@ sess.remSession = function(userId) {
   if (typeof userId == 'object' && typeof userId.userId != 'undefined')
     userId = userId.userId;
 
-  var tmpSess = _.find(sess.list, function(kvpValue, kvpKey) {
-    return (kvpKey === userId);
-  });
-
-  if (typeof tmpSess === 'undefined')
+  var tmpSess = sess.hasLocalSession(userId);
+  if (tmpSess == null)
     return;
-
-  delete tmpSess.client;
 
   sess.list = _.without(sess.list, tmpSess);
   db.redis.del(u.format('session:%s', userId));
+  console.log('Removing user from session list: %s', userId);
 }
 
 /**
@@ -85,15 +82,17 @@ sess.remSession = function(userId) {
   * @return True if we do, false if not.
   */
 sess.hasLocalSession = function(checkObj) {
-  if (typeof checkObj == 'object') {
-    return (_.find(sess.list, function(kvpVal, kvpKey) {
-      return (kvpVal.client == checkObj);
-    }) || null);
+  var isObj = typeof checkObj === 'object';
+  for (i in sess.list) {
+    if (!isObj) {
+      if (sess.list[i].client.userId === checkObj)
+        return (sess.list[i]);
+    } else {
+      if (sess.list[i].client === checkObj)
+        return (sess.list[i].client);
+    }
   }
-
-  return (_.find(sess.list, function(kvpVal, kvpKey) {
-    return (kvpKey == checkObj);
-  }) || null);
+  return null;
 }
 
 /**
@@ -122,12 +121,13 @@ sess.writeMessage = function(targetId, messageObj) {
   // for messages, where we push in one end and pop the other.
 
   // Check if the user is local
+  console.log('Looking for user: %s', targetId);
   var targetSession = sess.hasLocalSession(targetId);
   if (targetSession == null)
     return null; // Not a local session. This isn't supported yet.
+  console.log('Found user: %s', targetSession.client.userId);
 
-  targetSession.client.write(messageObj.message);
-
+  targetSession.client.write(JSON.stringify(messageObj));
 }
 
 module.exports = sess;

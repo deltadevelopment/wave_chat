@@ -175,7 +175,6 @@ channel.prototype.sendMessage = function(senderId, msg, callback) {
         return;
       }
 
-
       var userList = data[0][1];
       for (i in userList) {
         if (userList[i] == senderId)

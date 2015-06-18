@@ -10,7 +10,7 @@ var config = {
   backlog: 0,
   sslKey: './ssl/key.key',
   sslCert: './ssl/cert.crt',
-  api_key: process.env.CHAT_API_KEY
+  api_key: process.env.CHAT_API_KEY,
 
   // Wave Backend
   apiHost: "https://w4ve.herokuapp.com"
