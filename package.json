@@ -1,0 +1,10 @@
+{
+  "name": "wave_chat",
+  "version": "0.0.1",
+  "description": "Chat for Wave",
+  "author": "Delta Dev AS",
+  "dependencies": {
+    "ioredis": "^1.5.1",
+    "underscore": "^1.8.3"
+  }
+}

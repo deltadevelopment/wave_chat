@@ -1,0 +1,63 @@
+Session storage in Redis
+
+There is a global list in Redis over the active sessions.
+The session information contains session uuid, what server it's on,
+and the id of the user. A session object is only valid if the server
+it's said to be on has its active flag set.
+redisSet(format('session:user:%s', userId), sessionObj)
+redis('session:info:%s', { sessionObj })
+Todo: This isn't ideal. How to remove users on a specific server quickly?
+Maybe redisSet('session:server:%s', userId) ? Mye overhead på fjerning dog,
+da enda en liste må itereres for å fjerne ...
+
+Note: The server is not allowed to set session:user:%s before
+it has gotten a confirmed write on session:obj
+
+Server startup and shutdown
+* Clean the session list for its own objects, in case
+* the responsible server missed it, or this was the only active server.
+  On shutdown to clean the list from unessecary data slowing it down,
+  on startup in case the server crashed and the shurdown code wasn't run.
+
+
+Sending messages to users on other servers
+redisList(format('message:%s:%s', serverId, bucketId), { messageObj })
+
+Watching buckets
+We need to store this two places for it to be efficient.
+We need to be able to see what subscribers a buckt have,
+but also what subscriptions a user has. Use multi() when
+setting/unsetting.
+redisSet(format('bucket:%s:watch', bucketId), userId)
+redisSet(format('user:%s:watch', userId), bucketId)
+
+Other persistent info on users go in user:%s:whatever
+E.g. user:%s:token { key, expires}
+
+Cleanup duty
+It is the responsibility of the active server with the lowest id
+to perform cleanup duties in Redis.
+* Purge inactive servers for the server-set.
+* Purge the sessions belonging to inactive servers.
+
+
+sessionObj {
+  uuid, // Session uuid
+  uid,  // User id
+  server, // Server id
+}
+
+
+
+Is a server up?
+All servers needs to check this @ heartbeat so that they
+know if they're the lowest ID and thus need to do something.
+To avoid a race condition, servers are required to check the
+return on joining the list. If it's 0, they are obligated to expire the active
+var and remove itself from the list in the same operation, thereafter wait
+1 second before continuing in case another server is trying to remove them
+from the list at the same time.
+redisSet(server:list)
+redis(format('server:%s:alive', serverId), true), expire X sec
+
+TODO: Roaming request
