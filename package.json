@@ -5,6 +5,7 @@
   "author": "Delta Dev AS",
   "dependencies": {
     "ioredis": "^1.5.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "uuid": "^2.0.1"
   }
 }

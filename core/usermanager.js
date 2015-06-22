@@ -1,50 +1,87 @@
+'use strict';
 
-var userManager = { };
+var uuid = require('uuid');
+var _ = require('underscore');
+var duck = require('./duck.js');
+var config = require('../config.js');
 
-userManager.remoteDuck = {
+var userManager = {};
+
+userManager.remoteDuckProto = {
   uuid: null,
   uid: null,
-  server: null
-}
+  server: null,
+  channels: null
+};
 
-userManager.localDuck = {
+userManager.localDuckProto = {
   client: null
-}
-userManager.localDuck.prototype = userManager.remoteDuck;
+};
+userManager.localDuckProto.prototype = userManager.remoteDuck;
 
-var localUsers = new Array();
+var localUsers = [];
 
 // Local users
-userManager.addLocalUser = function() {
+userManager.addLocalUser = function(clientObj, userId) {
+  var userSession = {
+    uuid: uuid.v4(),
+    uid: userId,
+    server: config.serverId,
+    channels: [],
+    client: clientObj
+  };
 
-}
+  if (config.debug === true) {
+    duck.ensureDuck(userSession, userManager.localDuckProto, true);
 
-userManager.remLocalUser = function() {
+    if (_.find(localUsers, function(cmpObj) {
+      return (cmpObj.uid === userId);
+    })) {
+      throw new Error('Tried to create two sessions for the same user.');
+    }
 
-}
+    console.log('Debug: Adding user %s to the localUser list', userId);
+  }
 
-userManager.hasLocalUser = function() {
+  localUsers.push(userSession);
+};
 
-}
+userManager.remLocalUser = function(userId) {
+  var sessionObj = userManager.findLocalUser(userId);
+  if (config.debug === true) {
+    if (sessionObj === undefined) {
+      throw new Error('Tried to remove user not added to the localUser list');
+    }
+    console.log('Debug: Removing user %s from localUser list', userId);
+  }
+
+  localUsers = _.without(localUsers, sessionObj);
+};
+
+userManager.findLocalUser = function(userId) {
+  var sessionObj = _.find(localUsers, function(cmpObj) {
+    return (cmpObj.uid === userId);
+  });
+
+  if (config.debug === true) {
+    if (sessionObj === undefined) {
+      console.log('Debug: Failed to find user %s in the localUser list', userId);
+    } else {
+      console.log('Debug: Found user %s in the localUser list', userId);
+    }
+  }
+
+  return sessionObj;
+};
 
 // Remote users
-userManager.hasRemoteUser = function() {
+userManager.findRemoteUser = function() {
 
-}
+};
 
-// Both
-userManager.addUser = function() {
+var a = 'mep';
+var b = 'aa';
 
-}
-
-userManager.remUser = function() {
-
-}
-
-userManager.hasUser = function() {
-
-}
-
-userManager.isLocal = function() {
-
-}
+userManager.addLocalUser(a, b);
+userManager.remLocalUser(b);
+//userManager.addLocalUser(a, b);

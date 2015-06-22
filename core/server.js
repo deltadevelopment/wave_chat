@@ -5,8 +5,21 @@ var _ = require('underscore');
 var config = require('../config.js');
 var db = require('./db.js');
 
+/**
+  * This class contains functions related to the management of the server,
+  * and the server cluster. It is self-managing. When required,
+  * it will keep track of what server is master, and clean up as needed.
+  * @class Server
+  */
 var server = {};
+var maintainContext = null;
 
+/**
+  * Clean up after servers which has gone away.
+  * This includes removing session data of the users on the servers.
+  * @method removeGoneServers
+  * @param {Array} goneServerList A list over the server IDs to clean up
+  */
 server.removeGoneServers = function (goneServerList) {
   if (goneServerList.length === 0) {
     return;
@@ -27,6 +40,11 @@ server.removeGoneServers = function (goneServerList) {
   eval(removeCommand);
 };
 
+/**
+  * This is called periodically to update our activity state to the database.
+  * This method in turns calls checkIfMaster(), which calls removeGoneServers() if needed.
+  * @method clusterMaintain
+  */
 server.clusterMaintain = function () {
   if (config.debug === true) {
     console.log('Debug: Running clusterMaintain()');
@@ -45,10 +63,14 @@ server.clusterMaintain = function () {
       }
 
       server.checkIfMaster();
-      setTimeout(server.clusterMaintain, 10000);
+      maintainContext = setTimeout(server.clusterMaintain, 10000);
     });
 };
 
+/**
+  * Find out which server is the managing one. If we are, call removeGoneServers.
+  * @method checkIfMaster
+  */
 server.checkIfMaster = function() {
   db.smembers('server:list', function(err, data) {
     if (err !== null) {
@@ -113,6 +135,32 @@ server.checkIfMaster = function() {
   });
 };
 
+
+function clearPersonalData(callback) {
+  if (config.debug) {
+    console.log('Clearing personal data');
+  }
+  db.multi()
+    .del(util.format('server:%s:alive', config.serverId))
+    .srem('server:list', config.serverId)
+    .exec(function(err, data) {
+      if (callback !== undefined)
+        callback();
+    });
+}
+
+server.shutdown = function(callback) {
+  if (maintainContext != null) {
+    clearTimeout(maintainContext);
+  }
+
+  clearPersonalData(callback);
+};
+
+// Remove data belonging to this server in case something is lingering.
+clearPersonalData();
+
+// Start the server cluster managing cycle
 server.clusterMaintain();
 
 module.exports = server;

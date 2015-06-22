@@ -1,7 +1,12 @@
 var _ = require('underscore');
 var util = require('util');
 
-var helpers = { };
+/**
+  * This class is mostly for use in the development phase.
+  * Only use these in an if (debug) block.
+  * @class Duck
+  */
+var duck = { };
 
 /**
   * Check if an object contains a set of properties.
@@ -10,10 +15,10 @@ var helpers = { };
   * @param {Object} requiredFields Fields the object must contain
   * @param {Boolean} [allowInheritance=false] Check the prototype chain as well as the object
   */
-helpers.duckTest = function(duckObject, requiredFields, allowInheritance) {
+duck.duckTest = function(duckObject, requiredFields, allowInheritance) {
   for (currentField in requiredFields) {
     if (allowInheritance == true) {
-      if (currentField in duckObject)
+      if (currentField in duckObject || currentField === 'prototype')
         continue;
       return false;
     } else {
@@ -32,10 +37,10 @@ helpers.duckTest = function(duckObject, requiredFields, allowInheritance) {
   * @param {Object} requiredFields Fields the object must contain
   * @param {Boolean} [allowInheritance=false] Check the prototype chain as well as the object
   */
-helpers.ensureDuck = function(duckObject, requiredFields, allowInheritance) {
+duck.ensureDuck = function(duckObject, requiredFields, allowInheritance) {
   if (helpers.duckTest(duckObject, requiredFields, allowInheritance))
     return;
   throw new Error(util.format('Missing field in object %j', duckObject));
 }
 
-module.exports = helpers;
+module.exports = duck;
