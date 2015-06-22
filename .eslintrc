@@ -1,0 +1,13 @@
+{
+  "ecmaFeatures": {
+  },
+  "rules": {
+      "semi": [2, "always"],
+      "quotes": [2, "single", "avoid-escape"],
+      "no-eval": 0,
+      "eqeqeq": [2, "smart"]
+    },
+    "env": {
+      "node": true
+    }
+}
