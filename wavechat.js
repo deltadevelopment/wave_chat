@@ -14,26 +14,12 @@ var options = {
   cert: fs.readFileSync('./ssl/cert.crt')
 }
 
-function quitUser(client) {
-  // Part the user from all channels
-  if (client.channels || null == null) {
-    for (i in client.channels) {
-      var currentChannel = new chan(client.channels[i]);
-      console.log('Quit-parting user %s from channel %s', client.userId, currentChannel.id);
-      currentChannel.remUser(client.userId);
-    }
-  }
-
-  // Remove the user's session
-  session.remSession(client);
-}
 
 process.on('SIGINT', function() {
-  // We don't want to modify the array we're iterating
-  var sessionListCopy = session.list.slice();
-  for (i in sessionListCopy) {
-    quitUser(session.list[i].client);
-  }
+  // We don't want to modify the list we're iterating
+  /*var sessCopy = session.list.splice();
+  for (i in sessCopy)
+    quitUser(session.list[i].client);*/
   process.exit();
 });
 
@@ -49,7 +35,9 @@ var listener = net.createServer(options, function(client){
 
   // Disconnected
   client.on('end', function(){
-    quitUser(client);
+    if (client.isQuit == true)
+      return;
+    session.quitUser(client);
   });
 
   // Error

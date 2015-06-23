@@ -8,7 +8,7 @@ var helpers = require('./helpers.js');
   * @param The user's id
   */
 function user(userId) {
-  this.id = userId;
+  this.id = userId.toString();
 }
 
 /**

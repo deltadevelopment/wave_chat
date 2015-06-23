@@ -65,10 +65,22 @@ process.stdin.on('data', function(textLine) {
 });
 
 function doAuth(params) {
+  switch (params[0]) {
+    case '1':
+      params[0] = 'fcedcd2d6895f5796cfd59899df3b6c9';
+      break;
+    case '2':
+      params[0] = '1f78d9178ac5ff544469df8d446be8eb';
+      break;
+    case '3':
+      params[0] = '3c47e9adfd018f88c1c76272f9fb2db1';
+      break;
+  }
+
   client.write(JSON.stringify({
     command: 'auth',
     params: {
-      authToken: params.join(' ')
+      authToken: params[0],
     }
   }));
 }
@@ -77,7 +89,7 @@ function doJoin(params) {
   client.write(JSON.stringify({
     command: 'join',
     params: {
-      channel: params
+      bucket: params
     }
   }));
 }
@@ -86,7 +98,7 @@ function doPart(params) {
   client.write(JSON.stringify({
     command: 'part',
     params: {
-      channel: params
+      bucket: params
     }
   }));
 }
@@ -95,7 +107,7 @@ function doSend(params) {
   client.write(JSON.stringify({
     command: 'send',
     params: {
-      channel: params[0],
+      bucket: params[0],
       message: params.splice(1).join(' ')
     }
   }));

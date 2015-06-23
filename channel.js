@@ -12,7 +12,7 @@ var helpers = require('./helpers.js');
   * @param The channel's id
   */
 function channel(channelId) {
-  this.id = channelId;
+  this.id = channelId.toString();
 }
 
 /**
@@ -74,9 +74,39 @@ channel.prototype.remUser = function(userId, callback) {
       return;
     }
 
-    if (typeof callback !== 'undefined')
+    if (callback || null)
       callback(that, userId, data > 0);
   });
+}
+
+channel.prototype.addWatcher = function(userId, callback) {
+  this.isWatching(userId, function(userIsWatching) {
+    if (userIsWatching) {
+      
+      return;
+    }
+  });
+}
+
+channel.prototype.remWatcher = function(userId, callback) {
+
+}
+
+channel.prototype.isWatching = function(userId, callback) {
+  db.redis.lrange(u.format('channel:%s:watchers', this.id), 0, -1, function(err, data) {
+    if (err) {
+      console.error(u.format('Log error: %s', err));
+      return;
+    }
+
+    if (_.contains(data, userId))
+      callback(true);
+    callback(false);
+  });
+}
+
+channel.prototype.getWatchers = function(callback) {
+
 }
 
 channel.prototype.getLastInternal = function(userId, readSent, callback) {

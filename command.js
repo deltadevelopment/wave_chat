@@ -2,46 +2,13 @@ require('net');
 var requireDir = require('require-dir');
 
 var session = require('./session.js');
+var helpers = require('./helpers.js');
 var cmdList = requireDir('./commands');
 
 var command = { };
 
-var testData = [
-  {
-    command: 'authClient',
-    params: {
-      authToken: 'testToken',
-    }
-  },
-  {
-    command: 'join',
-    params: {
-      channel: 'testChan',
-    }
-  },
-  {
-    command: 'send',
-    params: {
-      channel: 'testChan',
-      message: 'testMessage',
-    }
-  },
-  {
-    command: 'part',
-    params: {
-      authToken: 'testToken',
-    }
-  }
-];
-
-
 var fakeCommandCounter = 0;
 command.handle = function(client, data) {
-  /*if (fakeCommandCounter < testData.length) {
-    data = testData[fakeCommandCounter++];
-    client.write(JSON.stringify(data));
-  }*/
-
   data = JSON.parse(data.toString());
 
   // If we're waiting for the result of auth,
@@ -68,7 +35,7 @@ command.handle = function(client, data) {
 
     if (cmdList[c].preAuth != true && session.hasLocalSession(client) == null) {
       console.warn('%s tried to execute a command without authenticating.', client.remoteAddress);
-      client.end(JSON.stringify({error: 'You must auth before running this command' }));
+      client.end(helpers.createError(407, 'You must authenticated before running this command', true));
       return;
     }
 
@@ -78,7 +45,7 @@ command.handle = function(client, data) {
 
   if (foundCommand == false) {
     console.warn('%s tried to run a non-existant command', client.remoteAddress);
-    client.end(JSON.stringify({ error: 'No such command' }));
+    client.end(helpers.createError(420, 'No such command', true));
     return;
   }
 }

@@ -1,6 +1,7 @@
 var config = require('./config');
 var promise = require('bluebird');
 var bhttp = require('bhttp');
+var u = require('util');
 
 var api = {}
 
@@ -12,17 +13,17 @@ var api = {}
   */
 api.getUserByAuthToken = function(authToken, callback){
   var url = config.apiHost + "/user/by_auth_token/" + authToken;
-
   bhttp.get(url, {}, function(err, res){
     if(err) { console.log(err); return }
 
     if(res.body.success === true){
-      callback(res.body.data.user);
+      callback(u.format('%s', res.body.data.user.username));
     } else {
-      callback({});
+      callback(null);
     }
   });
 }
+
 
 /**
   * Fetches a user from the API-server based on
@@ -37,7 +38,7 @@ api.getUserByAuthToken = function(authToken, callback){
 // triggee_id, triggee_type/id, user_id, message, pushable
 api.createRipple = function(originator, receiver, trigger, message, pushable){
   var url = config.apiHost + "/ripple"
-   
+
   bhttp.post(url, {
     ripple: {
       triggee_id: originator,
@@ -45,7 +46,7 @@ api.createRipple = function(originator, receiver, trigger, message, pushable){
       trigger_id: trigger,
       message: message,
       pushable: pushable,
-      action: 'chat' 
+      action: 'chat'
     }
   }, function(err, res){
     if(err) { console.log(err); return }

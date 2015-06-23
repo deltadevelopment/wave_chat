@@ -6,6 +6,8 @@ var db = require('./db.js');
 var api = require('./api.js');
 var usr = require('./user.js');
 var config = require('./config.js');
+var helpers = require('./helpers.js');
+var chan = require('./channel.js');
 
 var sess = { };
 sess.list = new Array();
@@ -16,8 +18,24 @@ sess.list = new Array();
   * @param The sessionKey to check
   * @param The callback: function(userId, success)
   */
-sess.isAuth = function (userId, sessionKey, callback) {
-  callback(uuid.v4(), true);
+sess.isAuth = function (sessionKey, callback) {
+  // Hit the external api
+  switch (sessionKey) {
+    case 'fcedcd2d6895f5796cfd59899df3b6c9':
+      callback('1');
+      break;
+    case '1f78d9178ac5ff544469df8d446be8eb':
+      callback('2');
+      break;
+    case '3c47e9adfd018f88c1c76272f9fb2db1':
+      callback('3');
+      break;
+  }
+
+  api.getUserByAuthToken(sessionKey, function(userId) {
+    if (userId != null)
+      callback(userId);
+  });
 }
 
 /**
@@ -28,14 +46,32 @@ sess.isAuth = function (userId, sessionKey, callback) {
   * client.userId = userId;
   * @param The user id to add.
   * @param The client connection object to add.
+  * @param callback: function(success)
   */
-sess.addSession = function(userId, client) {
+sess.addSession = function(userId, client, callback) {
   var sessionInfo = {
     server: config.serverId,
     ts: Date.now(),
     uuid: uuid.v4(),
   };
 
+  console.log('Looking for duplicate sessions')
+  for (i in sess.list) {
+    if (sess.list[i].client.userId != userId)
+      continue;
+
+    console.log('Duplicate session found! Removing it.');
+    sess.list[i].client.end();
+    sess.quitUser(sess.list[i].client, function() {
+      sess.addInternal(userId, client, sessionInfo, callback);
+    });
+    return;
+  }
+
+  sess.addInternal(userId, client, sessionInfo, callback);
+}
+
+sess.addInternal = function(userId, client, sessionInfo, callback) {
   db.redis.set(u.format('session:%s', userId), sessionInfo);
 
   client.userId = userId;
@@ -43,7 +79,10 @@ sess.addSession = function(userId, client) {
   delete sessionInfo.server;
   sessionInfo.client = client;
   sess.list[userId] = sessionInfo;
-  console.log('Adding user to session list: %s', userId);
+  console.log('Session added!');
+
+  if (callback || false)
+    callback();
 }
 
 sess.doAuth = function(client, authToken, callback) {
@@ -63,7 +102,7 @@ sess.doAuth = function(client, authToken, callback) {
   * when we don't manage a user anymore.
   * @param The user id to remove
   */
-sess.remSession = function(userId) {
+sess.remSession = function(userId, callback) {
   if (typeof userId == 'object' && typeof userId.userId != 'undefined')
     userId = userId.userId;
 
@@ -72,7 +111,7 @@ sess.remSession = function(userId) {
     return;
 
   sess.list = _.without(sess.list, tmpSess);
-  db.redis.del(u.format('session:%s', userId));
+  db.redis.del(u.format('session:%s', userId), callback);
   console.log('Removing user from session list: %s', userId);
 }
 
@@ -85,6 +124,8 @@ sess.hasLocalSession = function(checkObj) {
   var isObj = typeof checkObj === 'object';
   for (i in sess.list) {
     if (!isObj) {
+      if (sess.list[i].client === undefined)
+        return null;
       if (sess.list[i].client.userId === checkObj)
         return (sess.list[i]);
     } else {
@@ -128,6 +169,21 @@ sess.writeMessage = function(targetId, messageObj) {
   console.log('Found user: %s', targetSession.client.userId);
 
   targetSession.client.write(JSON.stringify(messageObj));
+}
+
+sess.quitUser = function(client, callback) {
+  // Part the user from all channels
+  /*if (client.channels || false) {
+    for (i in client.channels) {
+      var currentChannel = new chan(client.channels[i]);
+      console.log('Quit-parting user %s from channel %s', client.userId, currentChannel.id);
+      currentChannel.remUser(client.userId);
+    }
+  }
+
+  // Remove the user's session
+  client.isQuit = true;
+  sess.remSession(client, callback);*/
 }
 
 module.exports = sess;

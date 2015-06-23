@@ -7,7 +7,7 @@ cmd.command = 'join';
 cmd.handle = function(client, params) {
   // Add the user to the channel
 
-  var currentChannel = new chan(params.channel);
+  var currentChannel = new chan(params.bucket);
   currentChannel.addUser(client.userId, function(undefined, userAdded) {
     // Was the user already in the list?
     if (userAdded == false)
@@ -20,7 +20,7 @@ cmd.handle = function(client, params) {
       client.channels = new Array();
     client.channels.push(currentChannel.id);
 
-    console.log('Added user to channel: %s', currentChannel.id);
+    console.log('Added user %s to channel %s', client.userId, currentChannel.id);
   });
 }
 

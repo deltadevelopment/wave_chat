@@ -1,3 +1,5 @@
+var session = require('./session.js');
+
 var helpers = { };
 
 helpers.getObjectId = function(objRef) {
@@ -11,5 +13,19 @@ helpers.getObjectId = function(objRef) {
     throw new Error('id field of unexpected type');
   return objRef.id;
 }
+
+helpers.createError = function(numeric, message, stringify) {
+  var errorObj = {
+    error: {
+      numeric: numeric,
+      message: message
+    }
+  };
+
+  if (stringify === true)
+    return (JSON.stringify(errorObj));
+  return errorObj;
+}
+
 
 module.exports = helpers;
