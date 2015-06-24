@@ -4,8 +4,8 @@
   "rules": {
       "semi": [2, "always"],
       "quotes": [2, "single", "avoid-escape"],
-      "no-eval": 0,
-      "eqeqeq": [2, "smart"]
+      "eqeqeq": [2, "smart"],
+      "block-scoped-var": 2
     },
     "env": {
       "node": true

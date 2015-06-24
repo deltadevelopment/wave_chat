@@ -1,4 +1,5 @@
-var _ = require('underscore');
+'use strict';
+
 var util = require('util');
 
 /**
@@ -13,34 +14,29 @@ var duck = { };
   * @method duckTest
   * @param {Object} duckObject The object to check
   * @param {Object} requiredFields Fields the object must contain
-  * @param {Boolean} [allowInheritance=false] Check the prototype chain as well as the object
   */
-duck.duckTest = function(duckObject, requiredFields, allowInheritance) {
+duck.duckTest = function(duckObject, requiredFields) {
+  var currentField;
   for (currentField in requiredFields) {
-    if (allowInheritance == true) {
-      if (currentField in duckObject || currentField === 'prototype')
-        continue;
-      return false;
-    } else {
-      if (duckObject.hasOwnProperty(currentField))
-        continue;
-      return false;
+    if (duckObject.hasOwnProperty(currentField)) {
+      continue;
     }
+    return false;
   }
   return true;
-}
+};
 
 /**
   * Throw an error if an object does not contain a set if properties.
   * @method ensureDuck
   * @param {Object} duckObject The object to check
   * @param {Object} requiredFields Fields the object must contain
-  * @param {Boolean} [allowInheritance=false] Check the prototype chain as well as the object
   */
-duck.ensureDuck = function(duckObject, requiredFields, allowInheritance) {
-  if (helpers.duckTest(duckObject, requiredFields, allowInheritance))
+duck.ensureDuck = function(duckObject, requiredFields) {
+  if (duck.duckTest(duckObject, requiredFields)) {
     return;
+  }
   throw new Error(util.format('Missing field in object %j', duckObject));
-}
+};
 
 module.exports = duck;

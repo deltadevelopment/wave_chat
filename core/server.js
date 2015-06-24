@@ -9,9 +9,12 @@ var db = require('./db.js');
   * This class contains functions related to the management of the server,
   * and the server cluster. It is self-managing. When required,
   * it will keep track of what server is master, and clean up as needed.
+  * Note: For efficiency reasons, this class handles the datastore of
+  * other classes directly rather than going through them.
   * @class Server
   */
 var server = {};
+/** This variable holds the timeout-context for the clusterMaintain cycle */
 var maintainContext = null;
 
 /**
@@ -20,7 +23,8 @@ var maintainContext = null;
   * @method removeGoneServers
   * @param {Array} goneServerList A list over the server IDs to clean up
   */
-server.removeGoneServers = function (goneServerList) {
+
+server.removeGoneServers = function (goneServerList, callback) {
   if (goneServerList.length === 0) {
     return;
   }
@@ -30,14 +34,64 @@ server.removeGoneServers = function (goneServerList) {
     console.log(goneServerList);
   }
 
-  var removeCommand = 'db.multi()';
+
+  var dbCommands = [];
   var i = 0;
   for (i in goneServerList) {
-    removeCommand += ".del(util.format('server:%s:alive', " + goneServerList[i] + '))';
-    removeCommand += ".srem('server:list', " + goneServerList[i] + ')';
+    dbCommands.push([
+      'smembers',
+      util.format('server:%s:users', goneServerList[i])
+    ]);
   }
-  removeCommand += '.exec(function(err, data) { })';
-  eval(removeCommand);
+
+  db.multi(dbCommands).exec(function(err, purgeList) {
+    dbCommands = [];
+    i = 0;
+    for (i in goneServerList) {
+      // Remove the server's alive state
+      dbCommands = dbCommands.concat([
+        [
+          'del',
+          util.format('server:%s:alive', goneServerList[i])
+        ],
+        // Remove the server from the server list
+        [
+          'srem',
+          'server:list',
+          goneServerList[i]
+        ],
+        // Purge the server's userlist
+        [
+          'del',
+          util.format('server:%s:users', goneServerList[i])
+        ],
+        [
+          'srem',
+          'session:ref',
+          purgeList
+        ]
+      ]);
+    }
+
+    i = 0;
+    for (i in purgeList) {
+      dbCommands.push([
+        'del',
+        util.format('session:obj:%s', purgeList[i])
+      ]);
+    }
+
+    db.multi(dbCommands, function(innerErr) {
+      if (innerErr) {
+        console.error('Error: Failed while calling Redis: %s', err);
+        return;
+      }
+
+      if (callback !== undefined) {
+        callback();
+      }
+    });
+  });
 };
 
 /**
@@ -51,9 +105,9 @@ server.clusterMaintain = function () {
   }
 
   db.multi()
-    .sadd('server:list', config.serverId)
-    .set(util.format('server:%s:alive', config.serverId), '1')
-    .expire(util.format('server:%s:alive', config.serverId), 15)
+    .sadd('server:list', config.server.id)
+    .set(util.format('server:%s:alive', config.server.id), '1')
+    .expire(util.format('server:%s:alive', config.server.id), (config.server.heartbeat + config.server.killtime))
     .exec(function(err) {
       if (err != null) {
         if (config.debug === true) {
@@ -63,7 +117,7 @@ server.clusterMaintain = function () {
       }
 
       server.checkIfMaster();
-      maintainContext = setTimeout(server.clusterMaintain, 10000);
+      maintainContext = setTimeout(server.clusterMaintain, (config.server.heartbeat * 1000));
     });
 };
 
@@ -102,14 +156,14 @@ server.checkIfMaster = function() {
             i = data.length;
           }
 
-          if (data[i] < config.serverId && innerData != null && innerData.toString() === '1') {
+          if (data[i] < config.server.id && innerData != null && innerData.toString() === '1') {
             if (config.debug) {
               console.log('Another server (%s) found to be in charge', data[i]);
             }
             foundBoss = true;
             goneServerList = null;
             return;
-          } else if (data[i].toString() === config.serverId.toString()) {
+          } else if (data[i].toString() === config.server.id.toString()) {
             if (config.debug) {
               console.log('This server found to be in charge');
             }
@@ -135,30 +189,28 @@ server.checkIfMaster = function() {
   });
 };
 
-
-function clearPersonalData(callback) {
-  if (config.debug) {
-    console.log('Clearing personal data');
-  }
-  db.multi()
-    .del(util.format('server:%s:alive', config.serverId))
-    .srem('server:list', config.serverId)
-    .exec(function(err, data) {
-      if (callback !== undefined)
-        callback();
-    });
-}
-
+/**
+  * Function which runs the shutdown procedures for server.js.
+  * This function is to be called when the server is shutting down.
+  * @method shutdown
+  * @param {Function} callback A callback to run when the function is done.
+  */
 server.shutdown = function(callback) {
+  if (config.debug) {
+    console.log('Debug: Running server.js shutdown procedures');
+  }
   if (maintainContext != null) {
     clearTimeout(maintainContext);
   }
 
-  clearPersonalData(callback);
+  server.removeGoneServers([config.server.id], callback);
 };
 
 // Remove data belonging to this server in case something is lingering.
-clearPersonalData();
+if (config.debug) {
+  console.log('Debug: Running server.js startup procedures');
+}
+server.removeGoneServers([config.server.id]);
 
 // Start the server cluster managing cycle
 server.clusterMaintain();
