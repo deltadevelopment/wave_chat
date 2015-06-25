@@ -30,6 +30,25 @@ userManager.localDuckProto = {
 };
 
 var localUsers = [];
+var waitingAuth = [];
+
+userManager.addWaitingAuth = function(clientObj) {
+  waitingAuth.push(clientObj);
+}
+
+userManager.remWaitingAuth = function(clientObj) {
+  waitingAuth = _.without(waitingAuth, clientObj);
+}
+
+userManager.isWaitingAuth = function(clientObj) {
+  return (_.contains(waitingAuth, clientObj));
+}
+
+userManager.findSession = function(clientObj) {
+  return (_.find(localUsers, function(cmpObj) {
+    return (cmpObj.client === clientObj);
+  }) || null);
+};
 
 /**
   * Associate a client object and user id into a session.
@@ -91,7 +110,6 @@ userManager.addLocalUser = function(clientObj, userId, callback) {
           }
           if (config.debug) {
             console.log('Debug: Adding user %s to the localUser list', userId);
-            console.log(innerData);
           }
           localUsers.push(userSession);
           if (callback !== undefined) {
@@ -190,9 +208,3 @@ userManager.findUser = function(userId, callback) {
 };
 
 module.exports = userManager;
-
-userManager.addLocalUser(null, 'testUserId', function() {
-  userManager.findUser('testUserId', function(userObject, isLocal) {
-    console.log(userObject);
-  });
-});

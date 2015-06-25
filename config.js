@@ -13,8 +13,9 @@ var config = {
   server: {
     id: 1, // Math.floor((Math.random() * 100) + 1),
     heartbeat: 10,  // How often do we have to let the other servers know we're alive before we're killed? In seconds.
-    killtime: 5   // How long after a missing heartbeat before we remove a gone server, and if nessecary elect a new master? In seconds.
+    killtime: 5,   // How long after a missing heartbeat before we remove a gone server, and if nessecary elect a new master? In seconds.
                   // Note: Kills only happen on multiples of heartbeat.
+    port: 1234
   },
   ssl: {
     key: '',

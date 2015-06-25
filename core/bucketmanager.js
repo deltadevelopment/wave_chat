@@ -2,10 +2,16 @@
 
 var util = require('util');
 var db = require('./db.js');
+var _ = require('underscore');
 var duck = require('./duck.js');
 var config = require('../config.js');
-var usermanager = require('./usermanager.js');
 var message = require('./message.js');
+var usermanager = require('./usermanager.js');
+
+// TODO: Worry about what happens if a server goes away
+// Currently there is no way for another server to easily clean up after another server without iterating
+// all the channels to find out what members is part of each. Store copy on user in Redis?
+// Should probably replace the 'store on session' thing I'm currently doing with that
 
 /**
   * A collection of functions for managing buckets.
@@ -16,11 +22,10 @@ var message = require('./message.js');
   * SET bucket:%s:members, bucketId
   *
   * LIST bucket:%s:messages, bucketId
-  * @class bucketManager
+  * @class bucketManager
   */
 
 var bucketManager = { };
-
 
 /**
   * Join a user to a bucket.
@@ -41,19 +46,38 @@ bucketManager.join = function(userObj, bucketId, callback) {
       return;
     }
 
+    if (userObj.channels === undefined) {
+      userObj.channels = [];
+    }
+    userObj.channels.push(bucketId.toString());
+
+    if (config.debug) {
+      console.log('Debug: %s at joining %s from %s', (data.toString() === '1' ? 'Succeded' : 'Failed'), userObj.uid, bucketId);
+    }
+
     if (callback !== undefined) {
       callback(data);
     }
   });
 };
 
+bucketManager.hasMember = function(userObj, bucketId, callback) {
+  db.sismember(util.format('bucket:%s:members', bucketId), userObj.uid, function(err, data) {
+    if (err) {
+      console.error('Error: Database error: ', err);
+      return;
+    }
+    callback((data.toString() === '1'));
+  });
+}
+
 /**
   * Part a user from a bucket.
   *
   * @method part
-  * @param {Object} userObj The user object to part from the bucket
-  * @param {String} bucketId The bucket to part the user from
-  * @param {Function} [callback] The callback to call when the user has parted
+  * @param {Object} userObj The user object to part from the bucket
+  * @param {String} bucketId The bucket to part the user from
+  * @param {Function} [callback] The callback to call when the user has parted
   */
 bucketManager.part = function(userObj, bucketId, callback) {
   if (config.debug) {
@@ -66,11 +90,38 @@ bucketManager.part = function(userObj, bucketId, callback) {
       return;
     }
 
+    userObj.channels = _.without(userObj.channels, bucketId.toString());
+
+    if (config.debug) {
+      console.log('Debug: %s at parting %s from %s', (data.toString() === '1' ? 'Succeded' : 'Failed'), userObj.uid, bucketId);
+    }
+
     if (callback !== undefined) {
       callback(data);
     }
   });
 };
+
+bucketManager.partAll = function(userObj, callback) {
+  var isDone = false;
+  var reqSent = 0;
+  var ansRecv = 0;
+
+  var i;
+  var channelCopy = _.clone(userObj.channels);
+  for (i in channelCopy) {
+    ++reqSent;
+    bucketManager.part(userObj, channelCopy[i], function() {
+      ++ansRecv;
+      if (ansRecv === reqSent && isDone) {
+        if (callback !== undefined) {
+          callback();
+        }
+      }
+    });
+  }
+  isDone = true;
+}
 
 /**
   * Store a message to a bucket.
@@ -79,7 +130,7 @@ bucketManager.part = function(userObj, bucketId, callback) {
   * @method storeMessage
   * @param {String} bucketId The bucketId to store to
   * @param {Object} messageObj The message object to store
-  * @param {Function} [callback] The callback to call when the message is stored
+  * @param {Function} [callback] The callback to call when the message is stored
   */
 bucketManager.storeMessage = function(bucketId, messageObj, callback) {
   if (config.debug) {
@@ -94,7 +145,7 @@ bucketManager.storeMessage = function(bucketId, messageObj, callback) {
         console.error('Error: Could not store message to DB: ', messageObj);
         return;
       }
-      if (callback !== undefined) {
+      if (callback !== undefined) {
         callback();
       }
     });
@@ -104,7 +155,7 @@ bucketManager.storeMessage = function(bucketId, messageObj, callback) {
   * Get the X latest messages in a bucket.
   *
   * @method getMessages
-  * @param {String} bucketId The bucket to get messages from
+  * @param {String} bucketId The bucket to get messages from
   * @param {Function} callback The callback to call with the message data
   * @param {Integer} [entries = config.message.showlog] How many messages to get
   */
@@ -114,7 +165,7 @@ bucketManager.getMessages = function(bucketId, callback, entries) {
   }
 
   db.lrange(util.format('bucket:%s:messages', bucketId), -entries, -1);
-}
+};
 
 /**
   * Destory a bucket.
@@ -133,6 +184,8 @@ bucketManager.destroy = function(bucketId, callback) {
         console.error('Error: Failed to delete bucket %s from DB: %s', bucketId, err);
         return;
       }
+
+      delete bucketUsers[bucketId];
     });
 };
 

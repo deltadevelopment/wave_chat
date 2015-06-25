@@ -1,6 +1,6 @@
-var redis = require('ioredis');
+var Redis = require('ioredis');
 var config = require('../config.js');
 
-var db = new redis(config.redisConn);
+var db = new Redis(config.redisConn);
 
 module.exports = db;
