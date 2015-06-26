@@ -1,3 +1,5 @@
+'use strict';
+
 var net = require('net');
 var config = require('./config.js');
 var error = require('./core/error.js');
@@ -6,7 +8,7 @@ var command = require('./core/command.js');
 var userManager = require('./core/usermanager.js');
 var bucketManager = require('./core/bucketmanager.js');
 
-var server = net.createServer(function(client) {
+net.createServer(function(client) {
   // Client connected
   client.on('data', function(data) {
     try {
@@ -28,7 +30,7 @@ var server = net.createServer(function(client) {
       bucketManager.partAll(userSession, function() {
         userManager.remLocalUser(userSession.uid);
       });
-    } else {
+    } else {
       userManager.remWaitingAuth(client);
     }
   });

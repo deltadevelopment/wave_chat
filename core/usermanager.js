@@ -34,15 +34,15 @@ var waitingAuth = [];
 
 userManager.addWaitingAuth = function(clientObj) {
   waitingAuth.push(clientObj);
-}
+};
 
 userManager.remWaitingAuth = function(clientObj) {
   waitingAuth = _.without(waitingAuth, clientObj);
-}
+};
 
 userManager.isWaitingAuth = function(clientObj) {
   return (_.contains(waitingAuth, clientObj));
-}
+};
 
 userManager.findSession = function(clientObj) {
   return (_.find(localUsers, function(cmpObj) {
@@ -103,7 +103,7 @@ userManager.addLocalUser = function(clientObj, userId, callback) {
       db.multi()
         .set(util.format('session:obj:%s', userSession.uid), JSON.stringify(remoteSessionData))
         .sadd(util.format('server:%s:users', config.server.id), userSession.uid)
-        .exec(function(innerErr, innerData) {
+        .exec(function(innerErr) {
           if (innerErr) {
             console.error('Error: Failed to write user %s\'s session object to DB', userSession.uid);
             return;

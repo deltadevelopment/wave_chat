@@ -1,9 +1,7 @@
 'use strict';
 
-var duck = require('./duck');
 var _ = require('underscore');
 var error = require('./error.js');
-var config = require('../config.js');
 var userManager = require('./usermanager');
 var commandList = require('require-dir')('../command');
 

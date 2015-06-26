@@ -1,5 +1,6 @@
+'use strict';
+
 var net = require('net');
-var util = require('util');
 var config = require('./config.js');
 
 var connected = false;
@@ -25,45 +26,6 @@ client.on('error', function(data) {
   process.exit();
 });
 
-process.stdin.on('data', function(textLine) {
-  textLine = textLine.toString();
-  if (textLine.length == 0)
-    return;
-
-  if (textLine[textLine.length - 1] == '\n')
-    textLine = textLine.substr(0, textLine.length - 1)
-
-  var params = textLine.split(' ');
-  var command = params.splice(0, 1)[0];
-  params = params;
-
-  if (textLine != 'quit' && connected == false) {
-    console.log('Can\'t execute commands while not connected.');
-    return;
-  }
-
-  switch (command) {
-    case 'quit':
-      process.exit();
-      break;
-    case 'auth':
-      doAuth(params);
-      break;
-    case 'join':
-      doJoin(params);
-      break;
-    case 'part':
-      doPart(params);
-      break;
-      case 'send':
-        doSend(params);
-        break;
-    default:
-      console.log('Unknown command: %s', textLine);
-      break;
-  }
-});
-
 function doAuth(params) {
   switch (params[0]) {
     case '1':
@@ -80,8 +42,6 @@ function doAuth(params) {
       break;
   }
 
-  //client.write('efaawg2334{3rfaw4f');
-  //return;
 
   client.write(JSON.stringify({
     command: 'auth',
@@ -119,3 +79,45 @@ function doSend(params) {
     }
   }));
 }
+
+
+process.stdin.on('data', function(textLine) {
+  textLine = textLine.toString();
+  if (textLine.length === 0) {
+    return;
+  }
+
+  if (textLine[textLine.length - 1] === '\n') {
+    textLine = textLine.substr(0, textLine.length - 1);
+  }
+
+  var params = textLine.split(' ');
+  var command = params.splice(0, 1)[0];
+  params = params;
+
+  if (textLine !== 'quit' && connected === false) {
+    console.log('Can\'t execute commands while not connected.');
+    return;
+  }
+
+  switch (command) {
+    case 'quit':
+      process.exit();
+      break;
+    case 'auth':
+      doAuth(params);
+      break;
+    case 'join':
+      doJoin(params);
+      break;
+    case 'part':
+      doPart(params);
+      break;
+      case 'send':
+        doSend(params);
+        break;
+    default:
+      console.log('Unknown command: %s', textLine);
+      break;
+  }
+});

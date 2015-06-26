@@ -5,7 +5,6 @@ var db = require('./db.js');
 var _ = require('underscore');
 var duck = require('./duck.js');
 var config = require('../config.js');
-var message = require('./message.js');
 var usermanager = require('./usermanager.js');
 
 // TODO: Worry about what happens if a server goes away
@@ -145,7 +144,7 @@ bucketManager.partAll = function(userObj, callback) {
     });
   }
   isDone = true;
-}
+};
 
 /**
   * Store a message to a bucket.
@@ -157,10 +156,6 @@ bucketManager.partAll = function(userObj, callback) {
   * @param {Function} [callback] The callback to call when the message is stored
   */
 bucketManager.storeMessage = function(bucketId, messageObj, callback) {
-  if (config.debug) {
-    duck.ensureDuck(messageObj, message.duckProto);
-  }
-
   db.multi()
     .rpush(util.format('bucket:%s:messages', bucketId), JSON.stringify(messageObj))
     .ltrim(util.format('bucket:%s:messages', bucketId), -config.message.backlog, -1)

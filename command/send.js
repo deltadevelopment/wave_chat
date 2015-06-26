@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('underscore');
 var error = require('../core/error.js');
 var bucketManager = require('../core/bucketmanager.js');
 var userManager = require('../core/usermanager.js');

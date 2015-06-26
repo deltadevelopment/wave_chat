@@ -1,7 +1,5 @@
 'use strict';
 
-var config = require('../config.js');
-
 var error = {};
 
 error.make = function(numeric, message) {
