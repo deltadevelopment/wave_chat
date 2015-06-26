@@ -26,6 +26,7 @@ var usermanager = require('./usermanager.js');
   */
 
 var bucketManager = { };
+var localBuckets = [];
 
 /**
   * Join a user to a bucket.
@@ -49,7 +50,14 @@ bucketManager.join = function(userObj, bucketId, callback) {
     if (userObj.channels === undefined) {
       userObj.channels = [];
     }
+
+    if (localBuckets[bucketId.toString()] === undefined) {
+      localBuckets[bucketId.toString()] = [];
+      console.log('Making it');
+    }
+
     userObj.channels.push(bucketId.toString());
+    localBuckets[bucketId.toString()].push(userObj.uid);
 
     if (config.debug) {
       console.log('Debug: %s at joining %s from %s', (data.toString() === '1' ? 'Succeded' : 'Failed'), userObj.uid, bucketId);
@@ -69,7 +77,22 @@ bucketManager.hasMember = function(userObj, bucketId, callback) {
     }
     callback((data.toString() === '1'));
   });
-}
+};
+
+bucketManager.getLocalMembers = function(bucketId) {
+  return (localBuckets[bucketId] || []);
+};
+
+bucketManager.getMembers = function(bucketId, callback) {
+  db.smembers(util.format('bucket:%s:members', bucketId), function(err, data) {
+    if (err) {
+      console.error('Error: Database error: ', err);
+      return;
+    }
+
+    callback(data);
+  });
+};
 
 /**
   * Part a user from a bucket.
@@ -91,6 +114,7 @@ bucketManager.part = function(userObj, bucketId, callback) {
     }
 
     userObj.channels = _.without(userObj.channels, bucketId.toString());
+    localBuckets[bucketId.toString()] = _.without(localBuckets[bucketId.toString()], userObj.uid);
 
     if (config.debug) {
       console.log('Debug: %s at parting %s from %s', (data.toString() === '1' ? 'Succeded' : 'Failed'), userObj.uid, bucketId);
@@ -149,7 +173,7 @@ bucketManager.storeMessage = function(bucketId, messageObj, callback) {
         callback();
       }
     });
-}
+};
 
 /**
   * Get the X latest messages in a bucket.
