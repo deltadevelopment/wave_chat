@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-process-exit */
+
 var net = require('net');
 var config = require('./config.js');
 

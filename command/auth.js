@@ -28,6 +28,11 @@ cmdAuth.handle = function(params, clientObj) {
 
   userManager.addWaitingAuth(clientObj);
   api.verifyToken(params.userid, params.token, function(isAuth) {
+    if (!isAuth) {
+      //error.do(clientObj.);
+      return;
+    }
+
     userManager.addLocalUser(clientObj, params.userid, function() {
       userManager.remWaitingAuth(clientObj);
     });

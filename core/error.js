@@ -1,5 +1,7 @@
 'use strict';
 
+
+
 var error = {};
 
 error.make = function(numeric, message) {

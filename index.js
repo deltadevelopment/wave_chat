@@ -7,6 +7,7 @@ var error = require('./core/error.js');
 var command = require('./core/command.js');
 var userManager = require('./core/usermanager.js');
 var bucketManager = require('./core/bucketmanager.js');
+var convenience = require('./core/convenience.js');
 
 net.createServer(function(client) {
   // Client connected
@@ -38,4 +39,31 @@ net.createServer(function(client) {
   client.on('error', function() {
     // An error occured
   });
-}).listen(config.server.port);
+}).listen(config.server.port++);
+
+process.on('SIGINT', function() {
+  function performExit() {
+    console.log('Shutdown complete');
+    process.exit(); // eslint-disable-line no-process-exit
+  }
+
+  console.log('Got SIGINT - Initializing shutdown');
+
+  var localUserList = userManager.getLocalUsers();
+
+  var i = 0, quitUserCounter = 0;
+  for (i in localUserList) {
+    convenience.quit(localUserList[i].client, function() { // eslint-disable-line no-loop-func
+      ++quitUserCounter;
+
+      if (quitUserCounter === localUserList.length) {
+        performExit();
+      }
+    });
+  }
+
+  if (localUserList.length === 0) {
+    performExit();
+  }
+
+});

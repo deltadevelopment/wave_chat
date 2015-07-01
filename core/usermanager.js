@@ -6,6 +6,7 @@ var db = require('./db.js');
 var _ = require('underscore');
 var duck = require('./duck.js');
 var config = require('../config.js');
+var bucketManager = require('./bucketmanager.js');
 
 var userManager = {};
 
@@ -31,6 +32,10 @@ userManager.localDuckProto = {
 
 var localUsers = [];
 var waitingAuth = [];
+
+userManager.getLocalUsers = function() {
+  return _.clone(localUsers);
+};
 
 userManager.addWaitingAuth = function(clientObj) {
   waitingAuth.push(clientObj);
@@ -129,7 +134,7 @@ userManager.addLocalUser = function(clientObj, userId, callback) {
   * @method remLocalUser
   * @param {String} The user id of the user to remove a session from
   */
-userManager.remLocalUser = function(userId) {
+userManager.remLocalUser = function(userId, callback) {
   var sessionObj = userManager.findLocalUser(userId);
   if (config.debug === true) {
     if (sessionObj === undefined) {
@@ -154,9 +159,10 @@ userManager.remLocalUser = function(userId) {
       }
       console.log('Todo - put in a check for this:');
       console.log(data);
+      localUsers = _.without(localUsers, sessionObj);
+      callback();
     });
 
-  localUsers = _.without(localUsers, sessionObj);
 };
 
 /**

@@ -125,10 +125,15 @@ bucketManager.part = function(userObj, bucketId, callback) {
   });
 };
 
-bucketManager.partAll = function(userObj, callback) {
+bucketManager.partAll = function(userObj, cbParam, callback) {
   var isDone = false;
   var reqSent = 0;
   var ansRecv = 0;
+
+  if (userObj.channels === undefined || userObj.channels.length === 0) {
+    callback(cbParam);
+    return;
+  }
 
   var i;
   var channelCopy = _.clone(userObj.channels);
@@ -138,7 +143,7 @@ bucketManager.partAll = function(userObj, callback) {
       ++ansRecv;
       if (ansRecv === reqSent && isDone) {
         if (callback !== undefined) {
-          callback();
+          callback(cbParam);
         }
       }
     });

@@ -17,6 +17,9 @@ var config = {
                   // Note: Kills only happen on multiples of heartbeat.
     port: 1234
   },
+  api: {
+    endpoint: 'https://ddev-wave-staging.herokuapp.com'
+  },
   ssl: {
     key: '',
     cert: ''

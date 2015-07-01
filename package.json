@@ -4,6 +4,7 @@
   "description": "Chat for Wave",
   "author": "Delta Dev AS",
   "dependencies": {
+    "bhttp": "^1.2.1",
     "ioredis": "^1.5.1",
     "require-dir": "^0.3.0",
     "underscore": "^1.8.3",
