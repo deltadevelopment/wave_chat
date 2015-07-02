@@ -26,6 +26,4 @@ var config = {
   }
 };
 
-console.log('Server ID: %s', config.server.id);
-
 module.exports = config;

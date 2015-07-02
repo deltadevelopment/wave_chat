@@ -69,6 +69,10 @@ server.removeGoneServers = function (goneServerList, callback) {
           'srem',
           'session:ref',
           purgeList
+        ],
+        [
+          'del',
+          util.format('server:%s:messages', goneServerList[i])
         ]
       ]);
     }

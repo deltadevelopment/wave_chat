@@ -52,7 +52,6 @@ bucketManager.join = function(userObj, bucketId, callback) {
 
     if (localBuckets[bucketId.toString()] === undefined) {
       localBuckets[bucketId.toString()] = [];
-      console.log('Making it');
     }
 
     userObj.channels.push(bucketId.toString());

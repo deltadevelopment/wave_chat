@@ -2,12 +2,16 @@
 
 var net = require('net');
 var config = require('./config.js');
+require('./core/messagewatcher.js');
+require('./core/runtime-config.js');
 var error = require('./core/error.js');
-//var server = require('./core/server.js');
+var server = require('./core/server.js');
 var command = require('./core/command.js');
 var userManager = require('./core/usermanager.js');
 var bucketManager = require('./core/bucketmanager.js');
 var convenience = require('./core/convenience.js');
+
+console.log('Server ID: %s', config.server.id);
 
 net.createServer(function(client) {
   // Client connected
@@ -28,7 +32,7 @@ net.createServer(function(client) {
 
     var userSession = userManager.findSession(client);
     if (userSession) {
-      bucketManager.partAll(userSession, function() {
+      bucketManager.partAll(userSession, undefined, function() {
         userManager.remLocalUser(userSession.uid);
       });
     } else {

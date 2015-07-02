@@ -1,9 +1,16 @@
 'use strict';
 
+var _ = require('underscore');
+
 /* eslint-disable no-process-exit */
 
 var net = require('net');
 var config = require('./config.js');
+
+if (_.contains(process.argv, '--alt')) {
+  console.log('meep');
+  config.server.port = 4444;
+}
 
 var connected = false;
 console.log('Connecting ...');

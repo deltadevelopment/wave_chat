@@ -42,7 +42,7 @@ api.login = function(username, password, callback) {
       return;
     }
 
-    return (res.body.)
+//    return (res.body.)
   });
 }
 

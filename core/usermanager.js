@@ -55,6 +55,34 @@ userManager.findSession = function(clientObj) {
   }) || null);
 };
 
+userManager.getSessions = function(userList, callback) {
+  var dbCommands = [];
+  var i;
+  for (i in userList) {
+    dbCommands = dbCommands.concat([
+      [
+      'get',
+      util.format('session:obj:%s', userList[i])
+      ]
+    ]);
+  }
+
+  db.multi(dbCommands).exec(function(err, data) {
+    if (err) {
+      console.error('Error: Could not get session from DB: %s', err);
+      return;
+    }
+
+    var retData = [];
+    var i;
+    for (i in data) {
+      retData.push(JSON.parse(data[i][1]));
+    }
+
+    callback(retData);
+  });
+}
+
 /**
   * Associate a client object and user id into a session.
   * Writes the session to DB so other servers will know about it.
@@ -160,7 +188,9 @@ userManager.remLocalUser = function(userId, callback) {
       console.log('Todo - put in a check for this:');
       console.log(data);
       localUsers = _.without(localUsers, sessionObj);
-      callback();
+      if (callback !== undefined) {
+        callback();
+      }
     });
 
 };
@@ -176,14 +206,6 @@ userManager.findLocalUser = function(userId) {
   var sessionObj = _.find(localUsers, function(cmpObj) {
     return (cmpObj.uid === userId);
   });
-
-  if (config.debug === true) {
-    if (sessionObj === undefined) {
-      console.log('Debug: Failed to find user %s in the localUser list', userId);
-    } else {
-      console.log('Debug: Found user %s in the localUser list', userId);
-    }
-  }
 
   return (sessionObj || null);
 };
