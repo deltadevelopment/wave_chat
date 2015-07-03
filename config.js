@@ -23,7 +23,8 @@ var config = {
   ssl: {
     key: '',
     cert: ''
-  }
+  },
+  secret: require('./.secret.js')
 };
 
 module.exports = config;

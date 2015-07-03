@@ -26,6 +26,11 @@ setInterval(function() {
 
 
   db.multi(dbCommands).exec(function(err, data) {
+    if (err) {
+      console.error('Error: Could not get messages from Redis: %s:', err);
+      return;
+    }
+
     var message = data[0][1];
     if (message.length === 0) {
       if (config.debug) {
@@ -43,7 +48,7 @@ setInterval(function() {
       try {
         messageObj = JSON.parse(message[i]);
       } catch (ex) {
-        console.error('Error: Failed to parse message: %s', message[i])
+        console.error('Error: Failed to parse message: %s', message[i]);
         continue;
       }
 
@@ -51,7 +56,7 @@ setInterval(function() {
 
       var u;
       for (u in bucketMembers) {
-        var currentSession = userManager.findLocalUser(bucketMembers[i]);
+        var currentSession = userManager.findLocalUser(bucketMembers[u]);
         if (currentSession === null) {
           console.warn('Warning: Got a remote message for a user we don\'t have');
           continue;
@@ -60,6 +65,6 @@ setInterval(function() {
         currentSession.client.write(message[i]);//message[i]);
       }
     }
-  })
+  });
 
 }, 2500);

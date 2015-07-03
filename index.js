@@ -5,7 +5,7 @@ var config = require('./config.js');
 require('./core/messagewatcher.js');
 require('./core/runtime-config.js');
 var error = require('./core/error.js');
-var server = require('./core/server.js');
+require('./core/server.js');
 var command = require('./core/command.js');
 var userManager = require('./core/usermanager.js');
 var bucketManager = require('./core/bucketmanager.js');

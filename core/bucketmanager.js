@@ -138,7 +138,7 @@ bucketManager.partAll = function(userObj, cbParam, callback) {
   var channelCopy = _.clone(userObj.channels);
   for (i in channelCopy) {
     ++reqSent;
-    bucketManager.part(userObj, channelCopy[i], function() {
+    bucketManager.part(userObj, channelCopy[i], function() { // eslint-disable-line no-loop-func
       ++ansRecv;
       if (ansRecv === reqSent && isDone) {
         if (callback !== undefined) {
@@ -207,8 +207,10 @@ bucketManager.destroy = function(bucketId, callback) {
         console.error('Error: Failed to delete bucket %s from DB: %s', bucketId, err);
         return;
       }
-
-      delete bucketUsers[bucketId];
+      delete localBuckets[bucketId.toString()];
+      if (callback !== undefined) {
+        callback();
+      }
     });
 };
 

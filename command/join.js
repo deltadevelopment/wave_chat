@@ -3,8 +3,6 @@
 var error = require('../core/error.js');
 var bucketManager = require('../core/bucketmanager');
 
-'use strict';
-
 var cmdJoin = {};
 
 cmdJoin.command = 'join';

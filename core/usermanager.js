@@ -6,7 +6,6 @@ var db = require('./db.js');
 var _ = require('underscore');
 var duck = require('./duck.js');
 var config = require('../config.js');
-var bucketManager = require('./bucketmanager.js');
 
 var userManager = {};
 
@@ -74,14 +73,13 @@ userManager.getSessions = function(userList, callback) {
     }
 
     var retData = [];
-    var i;
     for (i in data) {
       retData.push(JSON.parse(data[i][1]));
     }
 
     callback(retData);
   });
-}
+};
 
 /**
   * Associate a client object and user id into a session.
