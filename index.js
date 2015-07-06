@@ -14,6 +14,10 @@ console.log('Server ID: %s', config.server.id);
 
 net.createServer(function(client) {
   // Client connected
+  if (config.debug) {
+    console.log('Debug: Client connected: %s', client.remoteAddress);
+  }
+
   client.on('data', function(data) {
     try {
       data = JSON.parse(data.toString());
