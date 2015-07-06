@@ -1,9 +1,7 @@
 'use strict';
 
-var _ = require('underscore');
-var config = require('../config.js');
+var config = require('../config.js'); // eslint-disable-line no-unused-vars
 
-config.args = [];
 var argi;
 for (argi in process.argv) {
   var param = process.argv[argi];
@@ -16,21 +14,9 @@ for (argi in process.argv) {
   delimiter = delimiter === -1 ? undefined : delimiter;
   key = param.substring(2, delimiter);
   value = (delimiter === undefined ? undefined : param.substring(delimiter + 1));
-  config.args.push([key, value]);
-}
 
-function findKey(needle) {
-  return _.find(config.args, function(cmpObj) {
-    return (cmpObj[0] === needle);
-  });
-}
-
-if ((key = findKey('id')) !== undefined) {
-  var serverId = key[1];
-  config.server.id = serverId;
-}
-
-if ((key = findKey('port')) !== undefined) {
-  var serverPort = key[1];
-  config.server.port = serverPort;
+  if (key.length <= 7 || key.substring(0, 7) !== 'config.') {
+    key = 'config.' + key;
+  }
+  eval(key + '=' + value); // eslint-disable-line no-eval
 }
