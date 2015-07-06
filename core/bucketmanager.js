@@ -67,6 +67,14 @@ bucketManager.join = function(userObj, bucketId, callback) {
   });
 };
 
+/**
+  * Check if a user is member of a bucket
+  *
+  * @method hasMember
+  * @param {Object} The user's session object
+  * @param {String} The bucket's id
+  * @param {Function} The callback, true if yes, false otherwise
+  */
 bucketManager.hasMember = function(userObj, bucketId, callback) {
   db.sismember(util.format('bucket:%s:members', bucketId), userObj.uid, function(err, data) {
     if (err) {
@@ -77,10 +85,24 @@ bucketManager.hasMember = function(userObj, bucketId, callback) {
   });
 };
 
+/**
+  * Get a list over the users on this server which are in a given bucket
+  *
+  * @method getLocalMembers
+  * @param {String} bucketId The id of the bucket to check
+  * @return {Array} An array of user ids
+  */
 bucketManager.getLocalMembers = function(bucketId) {
   return (localBuckets[bucketId] || []);
 };
 
+/**
+  * Get a list over all the members in a bucket
+  *
+  * @method getMembers
+  * @param {String} The id of the bucket to check
+  * @param {Function} callback The fn to call with the list of members
+  */
 bucketManager.getMembers = function(bucketId, callback) {
   db.smembers(util.format('bucket:%s:members', bucketId), function(err, data) {
     if (err) {
@@ -140,13 +162,21 @@ bucketManager.part = function(userObj, bucketId, callback) {
   });
 };
 
-bucketManager.partAll = function(userObj, cbParam, callback) {
+/**
+  * Part a user from all the channels they are in
+  * Useful when quitting a user
+  *
+  * @method partAll
+  * @param {Object} userObj The session object of the user to part
+  * @param {Function} callback The callback to call when done
+  */
+bucketManager.partAll = function(userObj, callback) {
   var isDone = false;
   var reqSent = 0;
   var ansRecv = 0;
 
   if (userObj.channels === undefined || userObj.channels.length === 0) {
-    callback(cbParam);
+    callback();
     return;
   }
 
@@ -158,7 +188,7 @@ bucketManager.partAll = function(userObj, cbParam, callback) {
       ++ansRecv;
       if (ansRecv === reqSent && isDone) {
         if (callback !== undefined) {
-          callback(cbParam);
+          callback();
         }
       }
     });

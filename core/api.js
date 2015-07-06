@@ -5,6 +5,16 @@ var config = require('../config.js');
 
 var api = {};
 
+/**
+  * Wrapper function for getUserByAuthToken
+  * This function checks that the userid is correct,
+  * and it could eventually implement caching
+  *
+  * @method verifyToken
+  * @param {String} userId the user's id
+  * @param {String} userToken The session token to check
+  * @param {Function} callback The callback to call after checking
+  */
 api.verifyToken = function(userId, userToken, callback) {
   // TODO: Implement caching
 
@@ -39,6 +49,14 @@ api.getUserByAuthToken = function(authToken, callback) {
   });
 };
 
+/**
+  * Try to log in a user
+  *
+  * @method login
+  * @param {String} username The user's username
+  * @param {String} password The user's password
+  * @param {Function} callback (null, undefined) on failure, (auth_token, userId) on success
+  */
 api.login = function(username, password, callback) {
   bhttp.post(config.api.endpoint + '/login', { user: { username: username, password: password } }, {encodeJSON: true}, function(err, res) {
     if (err) {
@@ -56,6 +74,15 @@ api.login = function(username, password, callback) {
   });
 };
 
+/**
+  * Send an interaction
+  *
+  * @method sendInteractionMessage
+  * @param {String} uid The sender's user id
+  * @param {String} bucketId the bucket's id
+  * @param {Array} exclude A list over what users we have reached directly or remotely
+  * @param {Function} The callback to call with null or the response from the API
+  */
 api.sendInteractionMessage = function(uid, bucketid, exclude, callback) {
   /* eslint-disable camelcase */
   var dataObj = {

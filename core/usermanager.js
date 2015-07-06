@@ -33,28 +33,68 @@ userManager.localDuckProto = {
 var localUsers = [];
 var waitingAuth = [];
 
+/**
+  * Get a cloned list over local user sessions
+  * It is safe to iterate this list and remove user sessions
+  *
+  * @method getLocalUsers
+  * @return {Array} A list over user sessions
+  */
 userManager.getLocalUsers = function() {
   return _.clone(localUsers);
 };
 
+/**
+  * Add a user to the list over users waiting for authentication
+  * We do this so we can buffer commands while waiting for db
+  *
+  * @method addWaitingAuth
+  * @param {Object} clientObj The user's client object
+  */
 userManager.addWaitingAuth = function(clientObj) {
   waitingAuth.push(clientObj);
 };
 
+/**
+  * Take the user out of the waiting auth list
+  *
+  * @method remWaitingAuth
+  * @param {Object} clientObj The user's client object
+  */
 userManager.remWaitingAuth = function(clientObj) {
   waitingAuth = _.without(waitingAuth, clientObj);
 };
 
+/**
+  * Is a user in the waiting auth list?
+  *
+  * @method isWaitingAuth
+  * @method {Object} clientObj The user's client object
+  */
 userManager.isWaitingAuth = function(clientObj) {
   return (_.contains(waitingAuth, clientObj));
 };
 
+/**
+  * Check if a client object has a session associated with it
+  *
+  * @method findSession
+  * @param {Object} clientObj The user's client object
+  * @return null or the session object
+  */
 userManager.findSession = function(clientObj) {
   return (_.find(localUsers, function(cmpObj) {
     return (cmpObj.client === clientObj);
   }) || null);
 };
 
+/**
+  * Get session objects from Redis
+  *
+  * @method getSessions
+  * @param {Array} userList An array over the user ids to check for
+  * @param {Function} callback The callback to call with the list
+  */
 userManager.getSessions = function(userList, callback) {
   var dbCommands = [];
   var i;

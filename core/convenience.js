@@ -5,6 +5,14 @@ var bucketManager = require('./bucketmanager.js');
 
 var client = {};
 
+/**
+  * Convenience function for quitting a user and cleaning up after them
+  *
+  * @method quit
+  * @param {Object} clientObj The user's client object
+  * @param {Function} the callback to call when done
+  * @param {String} [reason] The reason we're quitting them
+  */
 client.quit = function(clientObj, callback, reason) {
   var completeQuit = function() {
     clientObj.end(reason);
@@ -24,7 +32,7 @@ client.quit = function(clientObj, callback, reason) {
   } else {
     // The user might be in channels.
     // Remove him from them.
-    bucketManager.partAll(clientSession, undefined, function() {
+    bucketManager.partAll(clientSession, function() {
       // Good. Now remove the user's session.
       userManager.remLocalUser(clientSession.uid, function() {
         completeQuit();

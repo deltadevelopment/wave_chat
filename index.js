@@ -31,7 +31,7 @@ net.createServer(function(client) {
 
     var userSession = userManager.findSession(client);
     if (userSession) {
-      bucketManager.partAll(userSession, undefined, function() {
+      bucketManager.partAll(userSession, function() {
         userManager.remLocalUser(userSession.uid);
       });
     } else {
