@@ -42,7 +42,9 @@ net.createServer(function(client) {
   client.on('error', function() {
     // An error occured
   });
-}).listen(config.server.port++);
+}).listen(config.server.port);
+
+console.log('Listening on port %s ', config.server.port);
 
 process.on('SIGINT', function() {
   function performExit() {

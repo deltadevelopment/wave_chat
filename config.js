@@ -16,7 +16,7 @@ var config = {
     heartbeat: 10,  // How often do we have to let the other servers know we're alive before we're killed? In seconds.
     killtime: 5,   // How long after a missing heartbeat before we remove a gone server, and if nessecary elect a new master? In seconds.
                   // Note: Kills only happen on multiples of heartbeat.
-    port: 1234
+    port: process.env.port || 1234
   },
   api: {
     endpoint: 'https://ddev-wave-staging.herokuapp.com'
