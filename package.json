@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Chat for Wave",
   "author": "Delta Dev AS",
+  "scripts": {"start": "node index.js"},
   "dependencies": {
     "bhttp": "^1.2.1",
     "ioredis": "^1.5.1",
