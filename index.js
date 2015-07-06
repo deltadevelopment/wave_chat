@@ -2,7 +2,6 @@
 
 var net = require('net');
 var config = require('./config.js');
-require('./core/messagewatcher.js');
 require('./core/runtime-config.js');
 var error = require('./core/error.js');
 require('./core/server.js');

@@ -8,7 +8,8 @@ var config = {
   },
   message: {
     backlog: 100,
-    showlog: 5
+    showlog: 5,
+    update: 2500    // How often to check for message updates from remtoe servers?
   },
   server: {
     id: 1, // Math.floor((Math.random() * 100) + 1),

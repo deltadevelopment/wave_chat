@@ -49,21 +49,33 @@ api.login = function(username, password, callback) {
   });
 };
 
-{ interaction: { user_id: 1, topic_id: 2 (bucket_id), topic_type: “Bucket”, action: “create_chat_message” } }
-
-api.sendRippleMessage = function(uid, bucketid) {
+api.sendInteractionMessage = function(uid, bucketid, exclude, callback) {
+  /* eslint-disable camelcase */
   var dataObj = {
-    user_id: uid,
-    topic_id: bucketid,
-    topic_type: 'Bucket',
-    action: 'create_chat_message'
+    interaction: {
+      user_id: uid,
+      topic_id: bucketid,
+      topic_type: 'Bucket',
+      action: 'create_chat_message',
+      users_watching: exclude
+    }
   };
+  /* eslint-enable camelcase */
 
-  bhttp.post(config.api.endpoint + '/interaction', {}, { encoreJSON: true, headers: { 'X-AUTH-TOKEN': config.secret.apikey }}, function(err, res) {
-    console.log(res.body.toString());
+  bhttp.post(config.api.endpoint + '/interaction', dataObj, { encodeJSON: true, headers: { 'X-AUTH-TOKEN': config.secret.apikey }}, function(err, res) {
+    if (err) {
+      console.error('Error: Error while talking to API:', err);
+      return;
+    }
+
+    if (callback !== undefined) {
+      callback(
+        res.body.success !== false
+        ? res.body
+        : null
+      );
+    }
   });
-}
-
-api.sendInteraction();
+};
 
 module.exports = api;

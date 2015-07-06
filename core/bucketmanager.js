@@ -93,6 +93,22 @@ bucketManager.getMembers = function(bucketId, callback) {
 };
 
 /**
+  * Get a list over remote members
+  *
+  * @method getRemoteMembers
+  * @param {String} bucketId The bucket's id
+  * @param {Function} callback The function to call with the result array
+  */
+bucketManager.getRemoteMembers = function(bucketId, callback) {
+  bucketManager.getMembers(bucketId, function(allMembers) {
+    var localMembers = bucketManager.getLocalMembers(bucketId);
+
+    var remoteMembers = _.without(allMembers, localMembers);
+    callback(remoteMembers);
+  });
+};
+
+/**
   * Part a user from a bucket.
   *
   * @method part

@@ -5,6 +5,7 @@ var uuid = require('uuid');
 var db = require('./db.js');
 var _ = require('underscore');
 var duck = require('./duck.js');
+var error = require('./error.js');
 var config = require('../config.js');
 
 var userManager = {};
@@ -111,7 +112,7 @@ userManager.addLocalUser = function(clientObj, userId, callback) {
 
   db.sadd('session:ref', userSession.uid, function(err, data) {
     if (err) {
-      // TODO: Critical error - disconnect user
+      error.do(userSession.client, 500, 'Internal Server Error');
       console.error('Error: Could not add user %s to session list: ', userSession.uid, err);
       return;
     }
@@ -179,12 +180,11 @@ userManager.remLocalUser = function(userId, callback) {
     .srem('session:ref', userId)
     .srem(util.format('server:%s:users', config.server.id), userId)
     .del(util.format('session:obj:%s', userId))
-    .exec(function(err, data) {
+    .exec(function(err) {
       if (err) {
         throw new Error('Critical error: Failed to remove user %s\'s session from DB. Can\'t continue.', userId);
       }
-      console.log('Todo - put in a check for this:');
-      console.log(data);
+
       localUsers = _.without(localUsers, sessionObj);
       if (callback !== undefined) {
         callback();
