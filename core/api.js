@@ -1,13 +1,20 @@
 'use strict';
 
-var config = require('../config.js');
 var bhttp = require('bhttp');
+var config = require('../config.js');
 
 var api = {};
 
-// TODO: Implement this
 api.verifyToken = function(userId, userToken, callback) {
-  callback(true);
+  // TODO: Implement caching
+
+  api.getUserByAuthToken(userToken, function(uid) {
+    if (uid === null || userId !== uid) {
+      callback(false);
+      return;
+    }
+    callback(true);
+  });
 };
 
 /**
@@ -25,7 +32,7 @@ api.getUserByAuthToken = function(authToken, callback) {
     }
 
     if(res.body.success === true) {
-      callback(res.body.data.user.username);
+      callback(res.body.data.user.id, res.body.data.user.username);
     } else {
       callback(null);
     }
@@ -45,7 +52,7 @@ api.login = function(username, password, callback) {
       return;
     }
 
-    callback(res.body.username);
+    callback(res.body.data.user_session.auth_token, res.body.data.user_session.user_id);
   });
 };
 

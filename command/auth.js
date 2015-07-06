@@ -21,20 +21,27 @@ cmdAuth.handle = function(params, clientObj) {
     return;
   }
 
-  if (typeof params.token !== 'string' || typeof params.userid !== 'string') {
-    error.do(clientObj, 500, 'params.token of invalid type');
+  if (userManager.findSession(clientObj)) {
+    error.do(clientObj, 500, 'Protocol violation!');
     return;
   }
 
   userManager.addWaitingAuth(clientObj);
-  api.verifyToken(params.userid, params.token, function(isAuth) {
-    if (!isAuth) {
-      //error.do(clientObj.);
+  userManager.findUser(params.userid, function(userFound) {
+    if (userFound !== null) {
+      error.do(clientObj, 500, 'Only one session per user is allowed!');
       return;
     }
 
-    userManager.addLocalUser(clientObj, params.userid, function() {
-      userManager.remWaitingAuth(clientObj);
+    api.verifyToken(params.userid, params.token, function(isAuth) {
+      if (!isAuth) {
+        error.do(clientObj, 403, 'Invalid auth token');
+        return;
+      }
+
+      userManager.addLocalUser(clientObj, params.userid, function() {
+        userManager.remWaitingAuth(clientObj);
+      });
     });
   });
 };

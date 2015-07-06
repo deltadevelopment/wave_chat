@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var api = require('./core/api.js');
 
 /* eslint-disable no-process-exit */
 
@@ -38,27 +39,33 @@ client.on('error', function(data) {
 function doAuth(params) {
   switch (params[0]) {
     case '1':
-      params[1] = 'user1';
-      params[0] = 'fcedcd2d6895f5796cfd59899df3b6c9';
+      params[1] = 'testuser1';
       break;
     case '2':
-      params[1] = 'user2';
-      params[0] = '1f78d9178ac5ff544469df8d446be8eb';
+      params[1] = 'testuser2';
       break;
     case '3':
-      params[1] = 'user3';
-      params[0] = '3c47e9adfd018f88c1c76272f9fb2db1';
+      params[1] = 'testuser3';
       break;
   }
 
-
-  client.write(JSON.stringify({
-    command: 'auth',
-    params: {
-      userid: params[1],
-      token: params[0]
+  api.login(params[1], params[1], function(authToken, uid) {
+    if (authToken === null) {
+      console.log('Username/password wrong');
+      return;
     }
-  }));
+
+    console.log('Got token: %s', authToken);
+    console.log('UID: %s', uid);
+
+    client.write(JSON.stringify({
+      command: 'auth',
+      params: {
+        userid: uid,
+        token: authToken
+      }
+    }));
+  });
 }
 
 function doJoin(params) {
