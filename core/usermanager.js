@@ -115,6 +115,9 @@ userManager.getSessions = function(userList, callback) {
 
     var retData = [];
     for (i in data) {
+      if (data[i][1] === null) {
+        continue;
+      }
       retData.push(JSON.parse(data[i][1]));
     }
 
@@ -154,6 +157,7 @@ userManager.addLocalUser = function(clientObj, userId, callback) {
     if (err) {
       error.do(userSession.client, 500, 'Internal Server Error');
       console.error('Error: Could not add user %s to session list: ', userSession.uid, err);
+      callback(false);
       return;
     }
 
