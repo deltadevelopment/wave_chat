@@ -125,7 +125,7 @@ bucketManager.getRemoteMembers = function(bucketId, callback) {
   bucketManager.getMembers(bucketId, function(allMembers) {
     var localMembers = bucketManager.getLocalMembers(bucketId);
 
-    var remoteMembers = _.without(allMembers, localMembers);
+    var remoteMembers = _.difference(allMembers, localMembers);
     callback(remoteMembers);
   });
 };
