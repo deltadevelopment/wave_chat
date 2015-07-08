@@ -38,9 +38,7 @@ describe('UserManager', function() {
         });
       }
     });
-  });
 
-  describe('Data-backing', function() {
     it('should have an obj-entry in the db', function(done) {
       var callbacksReceived = 0;
       function askRedis(currentIndex) {
@@ -148,13 +146,13 @@ describe('UserManager', function() {
     });
   });
 
-  describe('#addWaitingAuth', function() {
+  describe('#addWaitingAuth()', function() {
     it('should add without problems', function() {
       _.each(testClientObjArr, userManager.addWaitingAuth)
     });
   });
 
-  describe('#isWaitingAuth', function() {
+  describe('#isWaitingAuth()', function() {
     it('should return true for items that are pushed', function() {
       _.each(testClientObjArr, function(item) {
         assert.equal(userManager.isWaitingAuth(item), true);
@@ -191,7 +189,7 @@ describe('UserManager', function() {
     });
   });
 
-  describe('#getSessions', function() {
+  describe('#getSessions()', function() {
     var requestSessions = [];
     _.each(testClientObjArr, function(item) {
       requestSessions.push(item.name);
@@ -226,7 +224,7 @@ describe('UserManager', function() {
     });
   });
 
-  describe('#findUser', function() {
+  describe('#findUser()', function() {
 
     it('should find valid, local sessions for all valid test objects', function(done) {
       var callbacksReceived = 0;
@@ -252,6 +250,79 @@ describe('UserManager', function() {
 
           ++callbacksReceived;
           if (callbacksReceived === bogoClientObjArr.length) {
+            done();
+          }
+        });
+      });
+    });
+  });
+
+  describe('#remLocalUser()', function() {
+    it('should remove all items without errors', function(done) {
+      var callbacksReceived = 0;
+      _.each(testClientObjArr, function(item) {
+        userManager.remLocalUser(item.name, function() {
+          assert.equal(userManager.findLocalUser(item.name), null);
+
+          ++callbacksReceived;
+          if (callbacksReceived === testClientObjArr.length) {
+            done();
+          }
+        });
+      });
+    });
+
+    it('should have the data backing removed for session objects', function(done) {
+      var callbacksReceived = 0;
+      _.each(testClientObjArr, function(item) {
+        redis.get(util.format('session:obj:%s', item.name), function(err, data) {
+          if (err) {
+            throw err;
+          }
+
+          assert.equal(data, null);
+
+          ++callbacksReceived;
+          if (callbacksReceived === testClientObjArr.length) {
+            done();
+          }
+        });
+      });
+    });
+
+    it('should have the data backing removed from the global user-table', function(done) {
+      var callbacksReceived = 0;
+      var i;
+      for (i in testClientObjArr) {
+        var item = testClientObjArr[i];
+      //_.each(testClientObjArr, function(item) {
+        redis.sismember('session:ref', item.name, function(err, data) {
+          if (err) {
+            throw err;
+          }
+
+          assert.equal(data, 0);
+
+          ++callbacksReceived;
+          if (callbacksReceived === testClientObjArr.length) {
+            done();
+          }
+        });
+      };
+    });
+
+    it('should have the data backing removed from the local user-table', function(done) {
+      var callbacksReceived = 0;
+      _.each(testClientObjArr, function(item) {
+        redis.sismember(util.format('server:%s:users', config.server.id), item.name, function(err, data) {
+          if (err) {
+            throw err;
+          }
+
+          assert.equal(data, 0);
+
+          ++callbacksReceived;
+          if (callbacksReceived === testClientObjArr.length) {
             done();
           }
         });
