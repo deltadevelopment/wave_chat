@@ -10,6 +10,19 @@ var command = {};
 // preAuth makes session be replaced with client
 
 command.handle = function(clientObj, cmdObj) {
+  if (userManager.isWaitingAuth(clientObj)) {
+    if (config.debug) {
+      console.log('-- Defering message --');
+      console.log(cmdObj);
+    }
+
+    if (clientObj.waitMsg === undefined) {
+      clientObj.waitMsg = [];
+    }
+
+    clientObj.waitMsg.push(cmdObj);
+  }
+
   if (config.debug) {
     console.log('-- Received Message --');
     console.log(cmdObj);

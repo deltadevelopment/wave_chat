@@ -1,7 +1,9 @@
 'use strict';
 
+var _ = require('underscore');
 var api = require('../core/api.js');
 var error = require('../core/error.js');
+var command = require('../core/command.js');
 var userManager = require('../core/usermanager.js');
 
 var cmdAuth = {};
@@ -41,6 +43,13 @@ cmdAuth.handle = function(params, clientObj) {
 
       userManager.addLocalUser(clientObj, params.userid, function() {
         userManager.remWaitingAuth(clientObj);
+
+        if (clientObj.waitMsg !== undefined) {
+          _.each(clientObj.waitMsg, function(item) {
+            command.handle(clientObj, item);
+          });
+        }
+
       });
     });
   });
