@@ -22,6 +22,11 @@ net.createServer(function(client) {
     try {
       data = JSON.parse(data.toString());
     } catch (err) {
+      if (config.debug) {
+        console.log('--- Could not parse JSON from client --');
+        console.log(err);
+        console.log(data.toString());
+      }
       error.do(client, 500, 'The client sent garbage.');
       return;
     }
