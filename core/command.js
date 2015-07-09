@@ -32,7 +32,7 @@ command.handle = function(clientObj, cmdObj) {
   // Make sure all required parameters are provided
   var paramKey = '';
   for (paramKey in curCmd.params.required) {
-    if (!(paramKey in cmdObj.params)) {
+    if ((cmdObj.params === undefined) || !(paramKey in cmdObj.params)) {
       error.do(clientObj, 404, 'Missing command parameter');
       return;
     }
