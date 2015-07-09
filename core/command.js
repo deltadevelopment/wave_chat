@@ -21,6 +21,7 @@ command.handle = function(clientObj, cmdObj) {
     }
 
     clientObj.waitMsg.push(cmdObj);
+    return;
   }
 
   if (config.debug) {
