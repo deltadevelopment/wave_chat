@@ -4,12 +4,12 @@ var _ = require('underscore');
 var error = require('./error.js');
 var config = require('../config.js');
 var userManager = require('./usermanager');
-var commandList = require('require-dir')('../command');
 var command = {};
 
 // preAuth makes session be replaced with client
 
 command.handle = function(clientObj, cmdObj) {
+  var commandList = require('require-dir')('../command');
   if (userManager.isWaitingAuth(clientObj)) {
     if (config.debug) {
       console.log('-- Defering message --');
