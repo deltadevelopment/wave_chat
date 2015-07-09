@@ -15,7 +15,7 @@ if (_.contains(process.argv, '--alt')) {
 
 var connected = false;
 console.log('Connecting ...');
-var client = net.connect(config.server.port, function () {
+var client = net.connect(1234, 'ec2-52-18-5-223.eu-west-1.compute.amazonaws.com', function () {
   connected = true;
   console.log('Connected!');
 });
@@ -72,7 +72,7 @@ function doJoin(params) {
   client.write(JSON.stringify({
     command: 'join',
     params: {
-      bucket: params
+      bucket: params[0]
     }
   }));
 }
