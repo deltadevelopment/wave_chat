@@ -20,6 +20,15 @@ cmdJoin.handle = function(params, userSession) {
       return;
     }
 
+    if (typeof params.bucket === 'number') {
+      params.bucket += '';
+    }
+
+    if (typeof params.bucket !== 'string') {
+      error.do(userSession.client, 500, 'Channel names must be strings');
+      return;
+    }
+
     bucketManager.join(userSession, params.bucket);
   });
 };
