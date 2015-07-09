@@ -2,14 +2,19 @@
 
 var _ = require('underscore');
 var error = require('./error.js');
+var config = require('../config.js');
 var userManager = require('./usermanager');
 var commandList = require('require-dir')('../command');
-
 var command = {};
 
 // preAuth makes session be replaced with client
 
 command.handle = function(clientObj, cmdObj) {
+  if (config.debug) {
+    console.log('-- Received Message --');
+    console.log(cmdObj);
+  }
+
   if (typeof cmdObj !== 'object') {
     error.do(clientObj, 500, 'Command object of unexpected type');
     return;
