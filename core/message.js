@@ -177,10 +177,6 @@ message.sendNotification = function(senderId, bucketId, exempt) {
   * @method lookForRemoteMessages
   */
 function lookForRemoteMessages() {
-  if (config.debug) {
-    console.log('Debug: Checking for new messages');
-  }
-
   var dbCommands = [
     [
       'lrange',
@@ -205,9 +201,6 @@ function lookForRemoteMessages() {
 
     var msg = data[0][1];
     if (msg.length === 0) {
-      if (config.debug) {
-        console.log('Debug: No messages');
-      }
       return;
     }
 
