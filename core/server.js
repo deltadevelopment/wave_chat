@@ -104,10 +104,6 @@ server.removeGoneServers = function (goneServerList, callback) {
   * @method clusterMaintain
   */
 server.clusterMaintain = function () {
-  if (config.debug === true) {
-    console.log('Debug: Running clusterMaintain()');
-  }
-
   db.multi()
     .sadd('server:list', config.server.id)
     .set(util.format('server:%s:alive', config.server.id), '1')
@@ -161,16 +157,16 @@ server.checkIfMaster = function() {
           }
 
           if (data[i] < config.server.id && innerData != null && innerData.toString() === '1') {
-            if (config.debug) {
+            /*if (config.debug) {
               console.log('Another server (%s) found to be in charge', data[i]);
-            }
+            }*/
             foundBoss = true;
             goneServerList = null;
             return;
           } else if (data[i].toString() === config.server.id.toString()) {
-            if (config.debug) {
+            /*if (config.debug) {
               console.log('This server found to be in charge');
-            }
+            }*/
             foundBoss = true;
           } else if (innerData == null) {
             goneServerList.push(data[i]);
