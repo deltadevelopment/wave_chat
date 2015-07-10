@@ -233,7 +233,14 @@ bucketManager.getMessages = function(bucketId, callback, entries) {
     entries = config.message.showlog;
   }
 
-  db.lrange(util.format('bucket:%s:messages', bucketId), -entries, -1);
+  db.lrange(util.format('bucket:%s:messages', bucketId), -entries, -1, function(err, data) {
+    if (err) {
+      console.log('Error: %s', err);
+      return;
+    }
+
+    callback(data);
+  });
 };
 
 /**

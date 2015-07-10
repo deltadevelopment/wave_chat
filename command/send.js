@@ -24,6 +24,7 @@ cmdSend.handle = function(params, userSession) {
 
     var messageObj = message.createMessage(userSession.uid, params.bucket, params.message);
     message.sendMessage(messageObj);
+    bucketManager.storeMessage(params.bucket, messageObj);
   });
 };
 

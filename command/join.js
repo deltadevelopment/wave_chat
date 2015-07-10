@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('underscore');
 var error = require('../core/error.js');
 var bucketManager = require('../core/bucketmanager');
 
@@ -29,7 +30,13 @@ cmdJoin.handle = function(params, userSession) {
       return;
     }
 
-    bucketManager.join(userSession, params.bucket);
+    bucketManager.join(userSession, params.bucket, function() {
+      bucketManager.getMessages(params.bucket, function(data) {
+        if (!_.isEqual(data, []) && !data) {
+          userSession.client.write(JSON.stringify(data));
+        }
+      });
+    });
   });
 };
 
