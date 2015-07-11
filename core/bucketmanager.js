@@ -239,10 +239,20 @@ bucketManager.getMessages = function(bucketId, callback, entries) {
       return;
     }
 
+    if (data === null) {
+      callback(data);
+      return;
+    }
+
+    // We get comma-separated JSON-objects from Redis - this is the simplest way to parse it
+    data = util.format('[%s]', data);
+
     try {
       data = JSON.parse(data);
     } catch (ex) {
       console.error('Could not parse JSON from Redis: %s - %s', ex, data);
+      callback(null);
+      return;
     }
 
     callback(data);
