@@ -239,6 +239,12 @@ bucketManager.getMessages = function(bucketId, callback, entries) {
       return;
     }
 
+    try {
+      data = JSON.parse(data);
+    } catch (ex) {
+      console.error('Could not parse JSON from Redis: %s - %s', ex, data);
+    }
+
     callback(data);
   });
 };
