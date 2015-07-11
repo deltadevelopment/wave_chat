@@ -78,7 +78,10 @@ message.sendMessage = function(messageObj) {
   * @return {List} A list over the user ids we sent to
   */
 message.sendMessageLocal = function(messageObj) {
-  var messageJson = JSON.stringify(messageObj);
+  // NOTE: We send this is an array for the sake of the client
+  // We might convert this function to take arrays as parameters later,
+  // and send them in a clunk
+  var messageJson = JSON.stringify([messageObj]);
 
   var bucketUsersLocal = bucketManager.getLocalMembers(messageObj.bucket);
 
