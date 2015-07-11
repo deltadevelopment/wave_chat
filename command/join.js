@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var config = require('../config.js');
 var error = require('../core/error.js');
 var bucketManager = require('../core/bucketmanager');
 
@@ -32,7 +33,11 @@ cmdJoin.handle = function(params, userSession) {
 
     bucketManager.join(userSession, params.bucket, function() {
       bucketManager.getMessages(params.bucket, function(data) {
-        if (!_.isEqual(data, []) && !data) {
+        if (data && !_.isEqual(data, [])) {
+          if (config.debug) {
+            console.log('--- Writing message backlog to client ---');
+            console.log(data);
+          }
           userSession.client.write(JSON.stringify(data));
         }
       });
