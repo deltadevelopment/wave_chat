@@ -224,9 +224,9 @@ server.shutdown = function(callback) {
 if (config.debug) {
   console.log('Debug: Running server.js startup procedures');
 }
-server.removeGoneServers([config.server.id]);
-
-// Start the server cluster managing cycle
-server.clusterMaintain();
+server.removeGoneServers([config.server.id], function() {
+  // Start the server cluster managing cycle
+  server.clusterMaintain();
+});
 
 module.exports = server;
