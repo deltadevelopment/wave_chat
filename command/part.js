@@ -9,7 +9,7 @@ cmdPart.command = 'part';
 cmdPart.preAuth = false;
 cmdPart.params = {
   required: {
-    bucket: null
+    bucket: 'number'
   }
 };
 

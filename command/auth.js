@@ -12,8 +12,8 @@ cmdAuth.command = 'auth';
 cmdAuth.preAuth = true;
 cmdAuth.params = {
   required: {
-    userid: null,
-    token: null
+    userid: 'number',
+    token: 'string'
   }
 };
 

@@ -63,6 +63,32 @@ command.handle = function(clientObj, cmdObj) {
     if (!(paramKey in curCmd.params.required) && !(paramKey in curCmd.params.optional)) {
       error.do(clientObj, 404, 'Parameter not valid for command');
       return;
+    } else {
+      // Validate the input
+      var paramPath = curCmd.params.required[paramKey] ? curCmd.params.required : curCmd.params.optional;
+      var typeCheckFailed = false;
+      switch (typeof paramPath[paramKey]) {
+        case 'string':
+          // Validate based on data type
+          if (typeof cmdObj.params[paramKey] !== paramPath[paramKey]) {
+            if (typeof cmdObj.params[paramKey] === 'number' && paramPath[paramKey] === 'string') {
+              // Convert nubmer to string
+              cmdObj.params[paramKey] = '' + cmdObj.params[paramKey];
+            } else {
+              typeCheckFailed = true;
+            }
+          }
+          break;
+        case 'function':
+          // Validate using a provided function
+          typeCheckFailed = paramPath[paramKey](cmdObj.params[paramKey]);
+          break;
+      }
+
+      if (typeCheckFailed) {
+        error.do(clientObj, 500, 'A parameter does not have the expected type');
+        return;
+      }
     }
   }
 

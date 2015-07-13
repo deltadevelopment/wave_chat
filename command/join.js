@@ -11,7 +11,7 @@ cmdJoin.command = 'join';
 cmdJoin.preAuth = false;
 cmdJoin.params = {
   required: {
-    bucket: null
+    bucket: 'number'
   }
 };
 

@@ -10,9 +10,9 @@ cmdSend.command = 'send';
 cmdSend.preAuth = false;
 cmdSend.params = {
   required: {
-    bucket: null,
-    drop: null,
-    message: null
+    bucket: 'number',
+    drop: 'number',
+    message: 'string'
   }
 };
 
