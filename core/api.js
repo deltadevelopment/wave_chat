@@ -107,7 +107,8 @@ api.sendInteractionMessage = function(uid, bucketid, exclude, callback) {
     }
 
     if (res.body.success !== true) {
-      console.error('Error: Could not send interaction: ' + res.body);
+      console.error('Error: Could not send interaction');
+      console.error(res.body);
     }
 
     if (callback !== undefined) {
