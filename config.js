@@ -25,7 +25,9 @@ var config = {
     key: '',
     cert: ''
   },
-  secret: process.env.WAVE_API_KEY
+  secret: {
+    apikey: process.env.WAVE_API_KEY
+  }
 };
 
 module.exports = config;
