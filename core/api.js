@@ -96,10 +96,18 @@ api.sendInteractionMessage = function(uid, bucketid, exclude, callback) {
   };
   /* eslint-enable camelcase */
 
+  if (config.debug) {
+    console.log('Debug: Sending interaction. Excempt users: %s', exclude);
+  }
+
   bhttp.post(config.api.endpoint + '/interaction', dataObj, { encodeJSON: true, headers: { 'X-AUTH-TOKEN': config.secret.apikey }}, function(err, res) {
     if (err) {
       console.error('Error: Error while talking to API:', err);
       return;
+    }
+
+    if (res.body.success !== true) {
+      console.error('Error: Could not send interaction: ' + res.body);
     }
 
     if (callback !== undefined) {
