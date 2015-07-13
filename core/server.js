@@ -26,6 +26,9 @@ var maintainContext = null;
 
 server.removeGoneServers = function (goneServerList, callback) {
   if (goneServerList.length === 0) {
+    if (callback !== undefined) {
+      callback();
+    }
     return;
   }
 
@@ -45,6 +48,13 @@ server.removeGoneServers = function (goneServerList, callback) {
   }
 
   db.multi(dbCommands).exec(function(err, purgeList) {
+    if (err) {
+      console.log('Error: ' + err);
+      callback();
+      return;
+    }
+
+    purgeList = purgeList[0];
     dbCommands = [];
     i = 0;
     for (i in goneServerList) {
@@ -85,9 +95,12 @@ server.removeGoneServers = function (goneServerList, callback) {
       ]);
     }
 
-    db.multi(dbCommands, function(innerErr) {
+    db.multi(dbCommands).exec(function(innerErr) {
       if (innerErr) {
         console.error('Error: Failed while calling Redis: %s', err);
+        if (callback !== undefined) {
+          callback();
+        }
         return;
       }
 
@@ -199,6 +212,7 @@ server.shutdown = function(callback) {
   if (config.debug) {
     console.log('Debug: Running server.js shutdown procedures');
   }
+
   if (maintainContext != null) {
     clearTimeout(maintainContext);
   }

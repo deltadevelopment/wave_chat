@@ -4,7 +4,7 @@ var net = require('net');
 var config = require('./config.js');
 require('./core/runtime-config.js');
 var error = require('./core/error.js');
-require('./core/server.js');
+var server = require('./core/server.js');
 var command = require('./core/command.js');
 var userManager = require('./core/usermanager.js');
 var bucketManager = require('./core/bucketmanager.js');
@@ -57,8 +57,10 @@ console.log('Listening on port %s ', config.server.port);
 
 process.on('SIGINT', function() {
   function performExit() {
-    console.log('Shutdown complete');
-    process.exit(); // eslint-disable-line no-process-exit
+    server.shutdown(function() {
+      console.log('Shutdown complete');
+      process.exit(); // eslint-disable-line no-process-exit
+    });
   }
 
   console.log('Got SIGINT - Initializing shutdown');
