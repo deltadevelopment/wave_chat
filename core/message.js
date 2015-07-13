@@ -126,6 +126,7 @@ message.sendMessageRemote = function(messageObj, callback) {
       }
 
       if (targetServers.length === 0) {
+        callback([]);
         return;
       }
 
