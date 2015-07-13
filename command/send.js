@@ -11,6 +11,7 @@ cmdSend.preAuth = false;
 cmdSend.params = {
   required: {
     bucket: null,
+    drop: null,
     message: null
   }
 };
@@ -22,7 +23,7 @@ cmdSend.handle = function(params, userSession) {
       return;
     }
 
-    var messageObj = message.createMessage(userSession.uid, params.bucket, params.message);
+    var messageObj = message.createMessage(userSession.uid, params.bucket, params.drop, params.message);
     message.sendMessage(messageObj);
     bucketManager.storeMessage(params.bucket, messageObj);
   });

@@ -44,11 +44,12 @@ message.remIncomingListener = function(method) {
   * @param {String} bucketId The bucket's id
   * @param {String} msg The message string
   */
-message.createMessage = function(senderId, bucketId, msg) {
+message.createMessage = function(senderId, bucketId, dropId, msg) {
   return {
     ts: Date.now(),
     sender: senderId,
     bucket: bucketId,
+    drop: dropId,
     message: msg
   };
 };
